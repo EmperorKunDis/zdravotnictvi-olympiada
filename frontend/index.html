@@ -5,272 +5,755 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Triážní AI Agent — Urgentní příjem</title>
 <style>
-  :root{
-    --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --line:#334155;
-    --txt:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8;
-    --p1:#ef4444; --p2:#f97316; --p3:#eab308; --p4:#22c55e; --p5:#3b82f6;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
-    background:var(--bg);color:var(--txt);line-height:1.5}
-  header{display:flex;align-items:center;justify-content:space-between;
-    padding:16px 28px;background:linear-gradient(90deg,#0b3a5c,#0f172a);
-    border-bottom:2px solid var(--accent)}
-  header h1{font-size:20px;margin:0;font-weight:600}
-  header h1 span{color:var(--accent)}
-  .badge{font-size:12px;padding:5px 12px;border-radius:999px;font-weight:600}
-  .badge.claude{background:#16a34a33;color:#4ade80;border:1px solid #16a34a}
-  .badge.rule{background:#ca8a0433;color:#fbbf24;border:1px solid #ca8a04}
-  .tabs{display:flex;gap:4px;padding:14px 28px 0;background:var(--bg)}
-  .tab{padding:10px 20px;cursor:pointer;border:none;background:var(--panel);
-    color:var(--muted);font-size:14px;font-weight:600;border-radius:8px 8px 0 0}
-  .tab.active{background:var(--panel2);color:var(--txt);border-bottom:2px solid var(--accent)}
-  main{padding:20px 28px 60px}
-  .layout{display:grid;grid-template-columns:300px 1fr;gap:20px}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
-  .plist{max-height:78vh;overflow:auto}
-  .pitem{padding:11px 13px;border-radius:9px;cursor:pointer;margin-bottom:7px;
-    border:1px solid transparent;background:var(--panel2);transition:.15s}
-  .pitem:hover{border-color:var(--accent)}
-  .pitem.active{border-color:var(--accent);background:#0b3a5c}
-  .pitem .nm{font-weight:600;font-size:14px}
-  .pitem .sub{font-size:12px;color:var(--muted)}
-  .pdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px}
-  .placeholder{color:var(--muted);text-align:center;padding:80px 20px;font-size:15px}
-  h2{font-size:17px;margin:0 0 6px}
-  h3{font-size:14px;margin:0 0 10px;color:var(--accent);text-transform:uppercase;letter-spacing:.5px}
-  .vitals{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
-  .vital{background:var(--panel2);border-radius:8px;padding:8px 12px;font-size:13px;min-width:90px}
-  .vital b{display:block;font-size:16px}
-  .vital.warn b{color:var(--p2)}
-  .cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
-  .sys{border-radius:12px;padding:18px;border:1px solid var(--line)}
-  .sys.baseline{background:#1c1917}
-  .sys.agent{background:#0c1e2e;border-color:#0e7490}
-  .sys-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-  .sys-h .t{font-weight:700;font-size:15px}
-  .prio{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:9px;
-    font-weight:700;font-size:14px;color:#0b1220}
-  .reason{font-size:13px;color:var(--muted);margin:4px 0}
-  .steps{font-size:13px;margin:10px 0 0;padding-left:0;list-style:none}
-  .steps li{margin-bottom:7px;padding-left:14px;border-left:2px solid var(--line)}
-  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-  .chip{font-size:12px;background:var(--panel2);padding:3px 9px;border-radius:6px;color:var(--txt)}
-  .verdict{margin-top:12px;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:600}
-  .v-correct{background:#16a34a22;color:#4ade80;border:1px solid #16a34a}
-  .v-undertriage{background:#ef444422;color:#fca5a5;border:1px solid #ef4444}
-  .v-overtriage{background:#f9731622;color:#fdba74;border:1px solid #f97316}
-  .v-acceptable{background:#3b82f622;color:#93c5fd;border:1px solid #3b82f6}
-  .truth{margin-top:18px;padding:14px;border-radius:10px;background:var(--panel2);
-    border:1px dashed var(--accent);font-size:14px}
-  .truth b{color:var(--accent)}
-  .metrics{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
-  .mcard{padding:18px;border-radius:12px;border:1px solid var(--line)}
-  .mcard.baseline{background:#1c1917}
-  .mcard.agent{background:#0c1e2e;border-color:#0e7490}
-  .mrow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}
-  .mrow:last-child{border:none}
-  .mrow .big{font-size:18px;font-weight:700}
-  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
-  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
-  th{color:var(--muted);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:.5px}
-  .tag{padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600}
-  .loading{color:var(--muted);padding:40px;text-align:center}
-  .hidden{display:none}
-  button.run{margin-top:6px;background:var(--accent);color:#0b1220;border:none;
-    padding:9px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px}
+/* ============================================================= *
+ *  TRIÁŽNÍ AI AGENT — MindBlowing UI
+ *  Bez externích závislostí: Canvas + CSS3 + Web Animations API
+ * ============================================================= */
+:root{
+  --bg:#070b18; --bg2:#0a1124;
+  --glass:rgba(20,28,52,.55); --glass2:rgba(28,38,68,.65);
+  --line:rgba(120,150,210,.16); --line2:rgba(120,150,210,.28);
+  --txt:#e8eefc; --muted:#8b9bc4; --dim:#5e6e96;
+  --accent:#38bdf8; --accent2:#818cf8; --accent3:#22d3ee;
+  --p1:#ff3b5c; --p2:#ff8a3d; --p3:#ffd23f; --p4:#34e0a1; --p5:#4d9bff;
+  --good:#34e0a1; --bad:#ff3b5c; --warn:#ff8a3d;
+  --glow:0 0 0 1px var(--line),0 18px 50px -18px rgba(0,0,0,.7);
+  --r:18px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,'Helvetica Neue',sans-serif;
+  background:var(--bg);color:var(--txt);line-height:1.55;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(120,150,210,.22);border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:rgba(120,150,210,.4)}
+
+/* ---- animovaný pozadí canvas ---- */
+#bgfx{position:fixed;inset:0;z-index:0;pointer-events:none}
+.mesh{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(900px 600px at 12% -5%,rgba(56,189,248,.16),transparent 60%),
+    radial-gradient(800px 600px at 100% 0%,rgba(129,140,248,.16),transparent 55%),
+    radial-gradient(900px 700px at 85% 110%,rgba(34,211,238,.12),transparent 55%),
+    linear-gradient(180deg,#070b18,#060912);
+}
+.app{position:relative;z-index:2}
+
+/* ---- HEADER ---- */
+header{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:18px 34px;backdrop-filter:blur(14px);
+  background:linear-gradient(90deg,rgba(11,30,58,.6),rgba(10,17,36,.35));
+  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;
+}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{
+  width:46px;height:46px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#0ea5e9,#6366f1);font-size:24px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.12),0 10px 30px -8px #2563eb;
+  position:relative;overflow:hidden;animation:logoFloat 5s ease-in-out infinite;
+}
+.logo::after{content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.5),transparent 45%)}
+@keyframes logoFloat{50%{transform:translateY(-4px)}}
+header h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.2px}
+header h1 .g{background:linear-gradient(90deg,#38bdf8,#818cf8,#22d3ee);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  background-size:200% auto;animation:shine 5s linear infinite}
+@keyframes shine{to{background-position:200% center}}
+header .sub{font-size:11.5px;color:var(--muted);margin-top:1px;letter-spacing:.3px}
+.hdr-right{display:flex;align-items:center;gap:14px}
+.live{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted);
+  font-variant-numeric:tabular-nums}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--good);
+  box-shadow:0 0 0 0 rgba(52,224,161,.6);animation:ping 2s infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(52,224,161,.55)}70%{box-shadow:0 0 0 9px rgba(52,224,161,0)}100%{box-shadow:0 0 0 0 rgba(52,224,161,0)}}
+.badge{font-size:12px;padding:7px 14px;border-radius:999px;font-weight:700;
+  display:inline-flex;align-items:center;gap:7px;backdrop-filter:blur(6px)}
+.badge .bd{width:7px;height:7px;border-radius:50%}
+.badge.claude{background:rgba(52,224,161,.14);color:#6ee7b7;border:1px solid rgba(52,224,161,.4)}
+.badge.claude .bd{background:#34e0a1;box-shadow:0 0 8px #34e0a1}
+.badge.rule{background:rgba(255,210,63,.13);color:#ffe082;border:1px solid rgba(255,210,63,.38)}
+.badge.rule .bd{background:#ffd23f;box-shadow:0 0 8px #ffd23f}
+
+/* ---- EPIDEMIOLOGY TICKER ---- */
+.epi{display:flex;align-items:center;gap:0;overflow:hidden;
+  border-bottom:1px solid var(--line);background:rgba(10,17,36,.4);
+  backdrop-filter:blur(8px);font-size:12.5px;height:0;transition:height .5s ease}
+.epi.show{height:42px}
+.epi .lbl{flex:none;padding:0 16px;height:100%;display:flex;align-items:center;gap:8px;
+  background:linear-gradient(90deg,rgba(255,138,61,.18),transparent);
+  color:#ffb784;font-weight:700;border-right:1px solid var(--line)}
+.epi .track{flex:1;overflow:hidden;white-space:nowrap;height:100%;display:flex;align-items:center}
+.epi .move{display:inline-block;padding-left:100%;animation:ticker 34s linear infinite}
+.epi .move:hover{animation-play-state:paused}
+.epi b{color:var(--txt)}
+.epi .pill{display:inline-block;margin:0 18px;color:var(--muted)}
+.epi .pill .hot{color:#ff8a3d;font-weight:700}
+@keyframes ticker{to{transform:translateX(-100%)}}
+
+/* ---- TABS ---- */
+.tabs{display:flex;gap:8px;padding:18px 34px 0;position:relative;z-index:5}
+.tab{padding:11px 22px;cursor:pointer;border:1px solid transparent;
+  background:var(--glass);color:var(--muted);font-size:13.5px;font-weight:700;
+  border-radius:12px;backdrop-filter:blur(8px);transition:.22s;display:flex;gap:8px;align-items:center}
+.tab:hover{color:var(--txt);border-color:var(--line2)}
+.tab.active{color:#fff;border-color:transparent;
+  background:linear-gradient(135deg,rgba(56,189,248,.22),rgba(129,140,248,.22));
+  box-shadow:0 0 0 1px rgba(56,189,248,.35),0 8px 24px -10px #2563eb}
+
+main{padding:22px 34px 80px;position:relative;z-index:3}
+.layout{display:grid;grid-template-columns:330px 1fr;gap:22px;align-items:start}
+@media(max-width:980px){.layout{grid-template-columns:1fr}}
+
+.glass{background:var(--glass);border:1px solid var(--line);border-radius:var(--r);
+  backdrop-filter:blur(16px);box-shadow:var(--glow)}
+.pad{padding:20px}
+
+/* ---- PATIENT LIST ---- */
+.plist{max-height:calc(100vh - 180px);overflow:auto;position:sticky;top:96px}
+.lhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.lhead h3{font-size:12px;margin:0;color:var(--accent);text-transform:uppercase;
+  letter-spacing:1.2px;font-weight:800}
+.lhead .cnt{font-size:11px;color:var(--dim);background:rgba(120,150,210,.1);
+  padding:3px 9px;border-radius:8px}
+.pitem{padding:13px 14px;border-radius:14px;cursor:pointer;margin-bottom:9px;
+  border:1px solid var(--line);background:var(--glass2);position:relative;overflow:hidden;
+  transition:transform .2s cubic-bezier(.2,.8,.2,1),border-color .2s,box-shadow .2s;
+  opacity:0;transform:translateX(-14px);animation:slideIn .5s forwards}
+@keyframes slideIn{to{opacity:1;transform:none}}
+.pitem::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--pc,#888);
+  box-shadow:0 0 12px var(--pc,#888)}
+.pitem:hover{transform:translateX(4px) scale(1.012);border-color:var(--line2);
+  box-shadow:0 12px 30px -14px rgba(0,0,0,.8)}
+.pitem.active{border-color:var(--accent);
+  background:linear-gradient(135deg,rgba(56,189,248,.16),rgba(129,140,248,.1));
+  box-shadow:0 0 0 1px var(--accent),0 14px 34px -14px #2563eb}
+.pitem .nm{font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+.pitem .sub{font-size:12px;color:var(--muted);margin-top:3px}
+.pitem .cc{font-size:12.5px;color:var(--txt);margin-top:6px;opacity:.92}
+.pdot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--pc,#888);
+  box-shadow:0 0 8px var(--pc,#888)}
+.pdot.crit{animation:critpulse 1.1s infinite}
+@keyframes critpulse{50%{box-shadow:0 0 0 5px rgba(255,59,92,.35),0 0 12px var(--pc)}}
+
+/* ---- DETAIL ---- */
+#detail{min-height:60vh}
+.placeholder{color:var(--muted);text-align:center;padding:90px 20px}
+.placeholder .ico{font-size:54px;margin-bottom:14px;filter:drop-shadow(0 0 20px rgba(56,189,248,.5));
+  animation:logoFloat 4s ease-in-out infinite}
+.placeholder h2{color:var(--txt);font-size:20px;margin:0 0 8px}
+.placeholder p{font-size:14px;max-width:440px;margin:0 auto}
+
+.phead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.phead h2{font-size:23px;margin:0;font-weight:800}
+.phead .meta{font-size:13.5px;color:var(--muted);margin-top:3px}
+.cc-big{margin-top:10px;font-size:14.5px}
+.cc-big b{color:var(--accent3)}
+.painbar{margin-top:14px;display:flex;align-items:center;gap:12px;font-size:12.5px;color:var(--muted)}
+.painbar .track{flex:1;height:9px;border-radius:999px;background:rgba(120,150,210,.14);overflow:hidden}
+.painbar .fill{height:100%;border-radius:999px;width:0;
+  background:linear-gradient(90deg,#34e0a1,#ffd23f,#ff8a3d,#ff3b5c);transition:width 1s cubic-bezier(.2,.8,.2,1)}
+
+/* vitals */
+.vitals{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:12px;margin-top:18px}
+.vital{background:var(--glass2);border:1px solid var(--line);border-radius:14px;padding:13px 14px;
+  position:relative;overflow:hidden;opacity:0;transform:translateY(10px);
+  animation:popUp .5s forwards}
+@keyframes popUp{to{opacity:1;transform:none}}
+.vital .vl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;display:flex;align-items:center;gap:6px}
+.vital .vv{font-size:21px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+.vital .vu{font-size:12px;color:var(--dim);font-weight:600}
+.vital.warn{border-color:rgba(255,138,61,.5);box-shadow:0 0 0 1px rgba(255,138,61,.25)}
+.vital.warn .vv{color:var(--warn)}
+.vital.crit{border-color:rgba(255,59,92,.55);box-shadow:0 0 0 1px rgba(255,59,92,.3)}
+.vital.crit .vv{color:var(--bad)}
+.vital .spark{position:absolute;right:0;bottom:0;width:60%;height:34px;opacity:.5}
+
+.ehr{margin-top:16px;font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tagk{background:rgba(120,150,210,.12);border:1px solid var(--line);padding:4px 10px;border-radius:8px;font-size:12px;color:var(--txt)}
+.tagk.risk{background:rgba(255,138,61,.13);border-color:rgba(255,138,61,.32);color:#ffc79a}
+
+/* ---- VS COMPARISON ---- */
+.vswrap{position:relative;margin-top:24px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:780px){.cols{grid-template-columns:1fr}}
+.vs-badge{position:absolute;left:50%;top:-13px;transform:translateX(-50%);z-index:4;
+  width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:15px;
+  background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;
+  box-shadow:0 0 0 5px var(--bg),0 0 24px -2px #6366f1}
+@media(max-width:780px){.vs-badge{display:none}}
+.sys{border-radius:var(--r);padding:20px;border:1px solid var(--line);position:relative;overflow:hidden;
+  opacity:0;transform:translateY(18px) scale(.98);animation:sysIn .6s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes sysIn{to{opacity:1;transform:none}}
+.sys.baseline{background:linear-gradient(160deg,rgba(40,30,28,.6),rgba(20,16,16,.5));border-color:rgba(160,120,100,.2)}
+.sys.agent{background:linear-gradient(160deg,rgba(12,40,58,.6),rgba(10,22,38,.55));border-color:rgba(56,189,248,.32);
+  box-shadow:0 0 0 1px rgba(56,189,248,.2),0 20px 50px -24px #0e7490}
+.sys.agent::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(400px 200px at 80% -10%,rgba(56,189,248,.14),transparent 60%)}
+.sys-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.sys-h .t{font-weight:800;font-size:15px;display:flex;align-items:center;gap:9px}
+.sys-h .src{font-size:10.5px;color:var(--muted);font-weight:600;background:rgba(120,150,210,.1);padding:3px 8px;border-radius:7px}
+.sys .note{font-size:12.5px;color:var(--muted);margin:0 0 12px}
+
+/* priority gauge */
+.gauge{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.ring{position:relative;width:78px;height:78px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring .num{position:absolute;inset:0;display:grid;place-items:center;flex-direction:column;
+  font-weight:900;font-size:26px;line-height:1}
+.ring .num small{display:block;font-size:9px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-top:1px}
+.gauge .lab{font-size:14px;font-weight:800}
+.gauge .lab small{display:block;font-size:11.5px;color:var(--muted);font-weight:600;margin-top:2px}
+
+/* reasoning steps */
+.steps{list-style:none;margin:14px 0 0;padding:0;font-size:13px}
+.steps li{position:relative;padding:9px 0 9px 26px;color:var(--txt);opacity:0;transform:translateX(-8px);
+  animation:stepIn .5s forwards}
+@keyframes stepIn{to{opacity:1;transform:none}}
+.steps li::before{content:"";position:absolute;left:7px;top:14px;width:7px;height:7px;border-radius:50%;
+  background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.steps li::after{content:"";position:absolute;left:10px;top:21px;bottom:-9px;width:1px;background:var(--line2)}
+.steps li:last-child::after{display:none}
+.thinking{font-size:12.5px;color:var(--accent3);display:flex;align-items:center;gap:8px;margin-top:6px}
+.thinking .d{width:5px;height:5px;border-radius:50%;background:var(--accent3);animation:tdot 1.1s infinite}
+.thinking .d:nth-child(2){animation-delay:.15s}.thinking .d:nth-child(3){animation-delay:.3s}
+@keyframes tdot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+
+.sub-h{font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;
+  font-weight:800;margin:16px 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-size:12px;background:rgba(120,150,210,.1);border:1px solid var(--line);
+  padding:5px 11px;border-radius:9px;color:var(--txt);
+  opacity:0;transform:scale(.9);animation:chipIn .4s forwards}
+@keyframes chipIn{to{opacity:1;transform:none}}
+.chip.act{background:rgba(56,189,248,.12);border-color:rgba(56,189,248,.3);color:#bae6fd}
+
+.escal{margin-top:14px;padding:12px 14px;border-radius:12px;font-size:12.5px;font-weight:600;
+  background:rgba(255,59,92,.1);border:1px solid rgba(255,59,92,.34);color:#ffb4c0;
+  display:flex;gap:10px;align-items:flex-start}
+.escal .ic{font-size:17px;animation:critpulse 1.2s infinite}
+
+.verdict{margin-top:16px;padding:12px 14px;border-radius:12px;font-size:13.5px;font-weight:800;
+  display:flex;align-items:center;gap:10px;position:relative;overflow:hidden}
+.verdict .ic{font-size:18px}
+.v-correct{background:rgba(52,224,161,.13);color:#6ee7b7;border:1px solid rgba(52,224,161,.4)}
+.v-undertriage{background:rgba(255,59,92,.14);color:#ffb4c0;border:1px solid rgba(255,59,92,.45);
+  animation:dangerflash 1.6s infinite}
+@keyframes dangerflash{50%{box-shadow:0 0 0 1px rgba(255,59,92,.6),0 0 26px -4px rgba(255,59,92,.55)}}
+.v-overtriage{background:rgba(255,138,61,.13);color:#ffc79a;border:1px solid rgba(255,138,61,.4)}
+.v-acceptable{background:rgba(77,155,255,.12);color:#9ec5ff;border:1px solid rgba(77,155,255,.36)}
+
+/* truth reveal */
+.truth{margin-top:22px;padding:18px 20px;border-radius:var(--r);position:relative;overflow:hidden;
+  background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(129,140,248,.08));
+  border:1px solid var(--line2);opacity:0;transform:translateY(14px);animation:popUp .6s .15s forwards}
+.truth::before{content:"";position:absolute;inset:0;border-radius:var(--r);padding:1px;
+  background:linear-gradient(120deg,#38bdf8,#818cf8,#22d3ee);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;opacity:.4}
+.truth h4{margin:0 0 8px;font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:1px}
+.truth .dx{font-size:18px;font-weight:800}
+.truth .notes{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.6}
+
+.prio{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:10px;
+  font-weight:800;font-size:13px;color:#0b1018}
+
+/* loading scanner */
+.scan{padding:70px 20px;text-align:center}
+.scan .ekgline{width:240px;height:60px;margin:0 auto 18px;position:relative}
+.scan h3{font-size:16px;margin:0 0 6px;color:var(--txt)}
+.scan p{font-size:13px;color:var(--muted);margin:0}
+.scan .bar{width:260px;height:5px;border-radius:99px;background:rgba(120,150,210,.14);margin:16px auto 0;overflow:hidden}
+.scan .bar i{display:block;height:100%;width:40%;border-radius:99px;
+  background:linear-gradient(90deg,transparent,#38bdf8,#818cf8,transparent);animation:scanbar 1.1s infinite}
+@keyframes scanbar{0%{transform:translateX(-120%)}100%{transform:translateX(320%)}}
+
+/* ---- EVAL ---- */
+.eval-hero{text-align:center;padding:6px 0 22px}
+.eval-hero h2{font-size:24px;margin:0 0 6px;font-weight:800}
+.eval-hero p{font-size:13.5px;color:var(--muted);max-width:680px;margin:0 auto}
+.run{margin-top:16px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border:none;
+  padding:13px 28px;border-radius:13px;font-weight:800;cursor:pointer;font-size:14px;
+  box-shadow:0 12px 30px -10px #2563eb;transition:transform .2s,box-shadow .2s;display:inline-flex;gap:9px;align-items:center}
+.run:hover{transform:translateY(-2px);box-shadow:0 18px 40px -12px #2563eb}
+.run:active{transform:translateY(0)}
+
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin:26px 0}
+@media(max-width:780px){.metrics{grid-template-columns:1fr}}
+.mcard{padding:24px;border-radius:var(--r);border:1px solid var(--line);position:relative;overflow:hidden;
+  opacity:0;transform:translateY(18px);animation:sysIn .6s forwards}
+.mcard.baseline{background:linear-gradient(160deg,rgba(40,30,28,.55),rgba(20,16,16,.45));border-color:rgba(160,120,100,.22)}
+.mcard.agent{background:linear-gradient(160deg,rgba(12,40,58,.6),rgba(10,22,38,.5));
+  border-color:rgba(56,189,248,.34);box-shadow:0 0 0 1px rgba(56,189,248,.2),0 22px 50px -26px #0e7490}
+.mcard .winner{position:absolute;top:14px;right:14px;font-size:11px;font-weight:800;color:#0b1018;
+  background:linear-gradient(135deg,#34e0a1,#22d3ee);padding:4px 11px;border-radius:99px;
+  box-shadow:0 0 18px -2px #34e0a1;opacity:0;animation:popUp .5s 1s forwards}
+.mcard h3{margin:0 0 4px;font-size:17px;display:flex;align-items:center;gap:9px}
+.mcard .sub{font-size:12px;color:var(--muted);margin-bottom:18px}
+.big-acc{font-size:54px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;
+  background:linear-gradient(135deg,#fff,#9ec5ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mcard.agent .big-acc{background:linear-gradient(135deg,#6ee7b7,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent}
+.big-acc small{font-size:20px;-webkit-text-fill-color:var(--muted)}
+.acc-lbl{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.mrow{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.mrow:last-child{border:none}
+.mrow .v{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+.mrow .v small{font-size:12px;color:var(--muted);font-weight:600}
+.mbar{height:7px;border-radius:99px;background:rgba(120,150,210,.12);margin-top:7px;overflow:hidden;width:130px}
+.mbar i{display:block;height:100%;width:0;border-radius:99px;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+
+.tablewrap{border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:var(--glass)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line)}
+thead th{color:var(--muted);font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:.8px;
+  background:rgba(10,17,36,.5);position:sticky;top:0}
+tbody tr{transition:background .15s;opacity:0;animation:slideIn .4s forwards}
+tbody tr:hover{background:rgba(56,189,248,.06)}
+td.pname{font-weight:700}
+.tag{padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;gap:5px}
+.pp{display:inline-flex;align-items:center;gap:6px;font-weight:700}
+.ppd{width:8px;height:8px;border-radius:50%}
+.arrow{color:var(--good);font-weight:900;margin:0 4px}
+
+.hidden{display:none}
+.fade{animation:fadeTab .45s}
+@keyframes fadeTab{from{opacity:0;transform:translateY(8px)}}
+.foot{text-align:center;color:var(--dim);font-size:11.5px;padding:20px;position:relative;z-index:3}
+.foot b{color:var(--muted)}
 </style>
 </head>
 <body>
+<canvas id="bgfx"></canvas>
+<div class="mesh"></div>
+
+<div class="app">
 <header>
-  <h1>🏥 Triážní <span>AI Agent</span> — Urgentní příjem</h1>
-  <div>
-    <span class="badge" id="aiBadge">…</span>
+  <div class="brand">
+    <div class="logo">🏥</div>
+    <div>
+      <h1>Triážní <span class="g">AI Agent</span></h1>
+      <div class="sub">Urgentní příjem · Česká AI Olympiáda 2026 · linie ZDRAVÍ</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="live"><span class="dot"></span><span id="clock">--:--:--</span></div>
+    <span class="badge rule" id="aiBadge"><span class="bd"></span> …</span>
   </div>
 </header>
 
+<div class="epi" id="epi">
+  <div class="lbl">🦠 EPIDEMIOLOGIE</div>
+  <div class="track"><div class="move" id="epiMove"></div></div>
+</div>
+
 <div class="tabs">
-  <button class="tab active" data-tab="triage">Triáž pacientů</button>
-  <button class="tab" data-tab="eval">Evaluace · Baseline vs. Agent</button>
+  <button class="tab active" data-tab="triage">🩺 Triáž pacientů</button>
+  <button class="tab" data-tab="eval">📊 Evaluace · Baseline vs. Agent</button>
 </div>
 
 <main>
-  <!-- TRIÁŽ -->
-  <section id="tab-triage" class="layout">
-    <div class="card plist">
-      <h3>Fronta pacientů</h3>
+  <!-- ===== TRIÁŽ ===== -->
+  <section id="tab-triage" class="layout fade">
+    <div class="glass pad plist">
+      <div class="lhead">
+        <h3>Fronta pacientů</h3>
+        <span class="cnt" id="pcount">0</span>
+      </div>
       <div id="patientList"></div>
     </div>
-    <div class="card" id="detail">
-      <div class="placeholder">← Vyberte pacienta z fronty pro spuštění triáže<br/>
-        <small>Porovnáme jednoduchý baseline systém s inteligentním AI agentem.</small>
+    <div class="glass pad" id="detail">
+      <div class="placeholder">
+        <div class="ico">🧬</div>
+        <h2>Vyberte pacienta z fronty</h2>
+        <p>Porovnáme <b style="color:#ffc79a">jednoduchý baseline</b> (rozhoduje jen z příznaků a vitálních funkcí)
+        s <b style="color:#7dd3fc">AI agentem</b>, který aktivně dohledává zdravotní záznamy a epidemiologii —
+        a chytá atypické, život ohrožující případy.</p>
       </div>
     </div>
   </section>
 
-  <!-- EVALUACE -->
+  <!-- ===== EVALUACE ===== -->
   <section id="tab-eval" class="hidden">
-    <div class="card">
-      <h2>Souhrnné srovnání na všech pacientech</h2>
-      <p class="reason">Cíl: minimalizovat <b>undertriage</b> (podhodnocení vážného pacienta — život ohrožující)
-        a zároveň snížit <b>overtriage</b> (planý poplach zahlcující systém).</p>
-      <button class="run" onclick="loadEval()">▶ Spustit evaluaci</button>
+    <div class="glass pad">
+      <div class="eval-hero">
+        <h2>Souhrnné srovnání na všech pacientech</h2>
+        <p>Cíl agenta: <b style="color:#ff8a96">0× undertriage</b> (žádný podhodnocený život ohrožující pacient)
+        a zároveň méně <b style="color:#ffc79a">overtriage</b> (planých poplachů zahlcujících systém).</p>
+        <button class="run" id="evalBtn" onclick="loadEval()">▶ Spustit evaluaci</button>
+      </div>
       <div id="evalBox"></div>
     </div>
   </section>
 </main>
 
+<div class="foot">Bez externích závislostí · Canvas + CSS3 + Web Animations API · režim: <b id="footMode">rule-based</b></div>
+</div>
+
 <script>
-const PRIO = {
-  1:{n:"Resuscitace",c:"var(--p1)"},2:{n:"Emergentní",c:"var(--p2)"},
-  3:{n:"Urgentní",c:"var(--p3)"},4:{n:"Méně urgentní",c:"var(--p4)"},
-  5:{n:"Necitlivé",c:"var(--p5)"}
+/* ============================================================ *
+ *  CANVAS — EKG puls + částicová síť (thematic background)
+ * ============================================================ */
+(function(){
+  const cv=document.getElementById('bgfx'),ctx=cv.getContext('2d');
+  let W,H,parts=[],t=0;
+  function size(){W=cv.width=innerWidth*devicePixelRatio;H=cv.height=innerHeight*devicePixelRatio;
+    cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';
+    parts=Array.from({length:Math.min(70,Math.floor(innerWidth/22))},()=>({
+      x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-.5)*.25*devicePixelRatio,vy:(Math.random()-.5)*.25*devicePixelRatio,
+      r:(Math.random()*1.6+.5)*devicePixelRatio}));
+  }
+  size();addEventListener('resize',size);
+  function ekg(x){ // jeden EKG úder, x v 0..1 segmentu
+    if(x<.15)return 0;
+    if(x<.2)return -.12;
+    if(x<.24)return .08;       // P vlna
+    if(x<.30)return 0;
+    if(x<.33)return .15;       // Q
+    if(x<.37)return -1;        // R spike
+    if(x<.41)return .45;       // S
+    if(x<.46)return 0;
+    if(x<.6)return -.28*Math.sin((x-.46)/.14*Math.PI); // T vlna
+    return 0;
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // částice + spoje
+    for(const p of parts){p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;}
+    for(let i=0;i<parts.length;i++){
+      for(let j=i+1;j<parts.length;j++){
+        const a=parts[i],b=parts[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy),max=150*devicePixelRatio;
+        if(d<max){ctx.strokeStyle='rgba(99,140,230,'+(.12*(1-d/max))+')';ctx.lineWidth=devicePixelRatio;
+          ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+      }
+    }
+    for(const p of parts){ctx.fillStyle='rgba(120,170,255,.5)';ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,7);ctx.fill();}
+    // EKG linka přes spodek
+    const baseY=H*0.82,amp=H*0.11,speed=0.00022,seg=0.16;
+    ctx.lineWidth=2*devicePixelRatio;
+    const grad=ctx.createLinearGradient(0,0,W,0);
+    grad.addColorStop(0,'rgba(56,189,248,0)');grad.addColorStop(.5,'rgba(56,189,248,.55)');
+    grad.addColorStop(1,'rgba(129,140,248,0)');
+    ctx.strokeStyle=grad;ctx.shadowColor='rgba(56,189,248,.6)';ctx.shadowBlur=12*devicePixelRatio;
+    ctx.beginPath();
+    let lead=0;
+    for(let px=0;px<=W;px+=2*devicePixelRatio){
+      const u=((px/W)/seg + t*speed)%1;
+      const y=baseY+ekg(u)*amp;
+      if(px===0)ctx.moveTo(px,y);else ctx.lineTo(px,y);
+      lead=y;
+    }
+    ctx.stroke();ctx.shadowBlur=0;
+    t+=16;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ============================================================ *
+ *  APP
+ * ============================================================ */
+const PRIO={
+  1:{n:"Resuscitace",c:"var(--p1)",hex:"#ff3b5c"},2:{n:"Emergentní",c:"var(--p2)",hex:"#ff8a3d"},
+  3:{n:"Urgentní",c:"var(--p3)",hex:"#ffd23f"},4:{n:"Méně urgentní",c:"var(--p4)",hex:"#34e0a1"},
+  5:{n:"Necitlivé",c:"var(--p5)",hex:"#4d9bff"}
 };
-const VERDICT = {
-  correct:["✓ Správná triáž","v-correct"],
-  acceptable:["≈ Přijatelná triáž","v-acceptable"],
-  undertriage:["✗ UNDERTRIAGE — podhodnoceno!","v-undertriage"],
-  overtriage:["⚠ OVERTRIAGE — planý poplach","v-overtriage"]
+const VERDICT={
+  correct:["✓","Správná triáž","v-correct"],
+  acceptable:["≈","Přijatelná triáž","v-acceptable"],
+  undertriage:["✗","UNDERTRIAGE — život ohrožující podhodnocení!","v-undertriage"],
+  overtriage:["⚠","OVERTRIAGE — planý poplach","v-overtriage"]
 };
 
-async function api(p){const r=await fetch(p);if(!r.ok)throw new Error(await r.text());return r.json();}
-async function apiPost(p,b){const r=await fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});return r.json();}
+const api=async p=>{const r=await fetch(p);if(!r.ok)throw new Error(await r.text());return r.json();};
 
-// tabs
+/* hodiny */
+setInterval(()=>{const d=new Date();
+  document.getElementById('clock').textContent=d.toLocaleTimeString('cs-CZ');},1000);
+
+/* tabs */
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   t.classList.add('active');
   const tab=t.dataset.tab;
-  document.getElementById('tab-triage').classList.toggle('hidden',tab!=='triage');
-  document.getElementById('tab-eval').classList.toggle('hidden',tab!=='eval');
+  ['triage','eval'].forEach(n=>{
+    const el=document.getElementById('tab-'+n);
+    el.classList.toggle('hidden',n!==tab);
+    if(n===tab)el.classList.remove('fade'),void el.offsetWidth,el.classList.add('fade');
+  });
 });
 
 let activeId=null;
+
 async function init(){
+  // status
   try{
     const st=await api('/api/status');
     const b=document.getElementById('aiBadge');
-    if(st.ai_mode==='claude'){b.className='badge claude';b.textContent='● AI: reálné Claude reasoning';}
-    else{b.className='badge rule';b.textContent='● AI: klinická pravidla (offline režim)';}
+    if(st.ai_mode==='claude'){b.className='badge claude';b.innerHTML='<span class="bd"></span> Claude reasoning · LIVE';
+      document.getElementById('footMode').textContent='claude';}
+    else{b.className='badge rule';b.innerHTML='<span class="bd"></span> Klinická pravidla · offline';
+      document.getElementById('footMode').textContent='rule-based';}
   }catch(e){}
+  // epidemiologie ticker
+  loadEpi();
+  // pacienti
   const data=await api('/api/patients');
   const list=document.getElementById('patientList');
+  document.getElementById('pcount').textContent=data.patients.length;
   list.innerHTML='';
-  data.patients.forEach(p=>{
+  data.patients.forEach((p,i)=>{
+    const tp=p.true_priority||3, info=PRIO[tp]||PRIO[3];
     const el=document.createElement('div');
     el.className='pitem';el.dataset.id=p.id;
-    el.innerHTML=`<div class="nm">${p.name}</div>
-      <div class="sub">${p.age} let · ${p.gender} · ${p.presentation.chief_complaint}</div>`;
+    el.style.setProperty('--pc',info.hex);
+    el.style.animationDelay=(i*55)+'ms';
+    const crit=tp<=2?'crit':'';
+    el.innerHTML=`<div class="nm"><span class="pdot ${crit}"></span>${p.name}</div>
+      <div class="sub">${p.age} let · ${p.gender==='female'?'žena':'muž'}</div>
+      <div class="cc">${p.presentation.chief_complaint}</div>`;
     el.onclick=()=>selectPatient(p.id,el);
     list.appendChild(el);
   });
 }
 
-async function selectPatient(id,el){
+async function loadEpi(){
+  try{
+    const e=await api('/api/epidemiology');
+    const c=e.conditions||{};
+    const NAME={influenza:'Chřipka',covid19:'COVID-19',rsv:'RSV',gastroenteritis:'Gastroenteritida'};
+    const STAT={epidemic:'EPIDEMIE',endemic:'endemicky',seasonal:'sezónně',normal:'normál'};
+    let parts=[`📍 <b>${e.region}</b> · ${e.date}`];
+    for(const k in c){const x=c[k];const hot=x.status==='epidemic'||x.severity==='high';
+      parts.push(`${NAME[k]||k}: <span class="${hot?'hot':''}">${STAT[x.status]||x.status}</span> (${x.incidence_per_100k}/100k, ${x.trend==='increasing'?'↑ roste':x.trend==='stable'?'→ stabilní':x.trend})`);}
+    if(e.expected_surge)parts.push(`Očekávaný nápor: respirační <b>${e.expected_surge.respiratory_cases}</b>`);
+    const html=parts.map(p=>`<span class="pill">${p}</span>`).join('');
+    document.getElementById('epiMove').innerHTML=html+html;
+    document.getElementById('epi').classList.add('show');
+  }catch(e){}
+}
+
+function ringSVG(p,hex){
+  const C=2*Math.PI*32, frac=(6-p)/5; // P1 plný, P5 skoro prázdný
+  const off=C*(1-frac);
+  return `<svg width="78" height="78" viewBox="0 0 78 78">
+    <circle cx="39" cy="39" r="32" fill="none" stroke="rgba(120,150,210,.14)" stroke-width="7"/>
+    <circle cx="39" cy="39" r="32" fill="none" stroke="${hex}" stroke-width="7" stroke-linecap="round"
+      stroke-dasharray="${C}" stroke-dashoffset="${C}"
+      style="filter:drop-shadow(0 0 6px ${hex})">
+      <animate attributeName="stroke-dashoffset" from="${C}" to="${off}" dur="1s" fill="freeze"
+        calcMode="spline" keySplines="0.2 0.8 0.2 1" keyTimes="0;1"/>
+    </circle></svg>`;
+}
+function gauge(p){
+  const info=PRIO[p]||PRIO[3];
+  return `<div class="gauge">
+    <div class="ring">${ringSVG(p,info.hex)}<div class="num" style="color:${info.hex}">${p}<small>PRIO</small></div></div>
+    <div class="lab" style="color:${info.hex}">P${p} · ${info.n}<small>triážní priorita</small></div>
+  </div>`;
+}
+
+function selectPatient(id,el){
   activeId=id;
   document.querySelectorAll('.pitem').forEach(x=>x.classList.remove('active'));
   el.classList.add('active');
   const d=document.getElementById('detail');
-  d.innerHTML='<div class="loading">⏳ Spouštím triáž — baseline i AI agent…</div>';
-  try{
-    const r=await api('/api/compare/'+id);
-    renderCompare(d,r);
-  }catch(e){d.innerHTML='<div class="placeholder">Chyba: '+e.message+'</div>';}
+  d.innerHTML=`<div class="scan">
+    <canvas class="ekgline" width="240" height="60"></canvas>
+    <h3>Spouštím duální triáž…</h3>
+    <p>Baseline analyzuje vitální funkce · AI agent dohledává EHR a epidemiologii</p>
+    <div class="bar"><i></i></div>
+  </div>`;
+  animScanLine(d.querySelector('.ekgline'));
+  api('/api/compare/'+id).then(r=>renderCompare(d,r))
+    .catch(e=>{d.innerHTML='<div class="placeholder"><div class="ico">⚠️</div><h2>Chyba</h2><p>'+e.message+'</p></div>';});
 }
 
-function prioBadge(p){
-  const info=PRIO[p]||{n:"?",c:"#888"};
-  return `<span class="prio" style="background:${info.c}">P${p} · ${info.n}</span>`;
+function animScanLine(cv){
+  const ctx=cv.getContext('2d');let x=0;
+  function f(){if(!document.body.contains(cv))return;
+    ctx.clearRect(0,0,240,60);ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;ctx.shadowColor='#38bdf8';ctx.shadowBlur=8;
+    ctx.beginPath();
+    for(let i=0;i<240;i++){const u=((i/240)*1.6+x)%1;let y=30;
+      if(u>.3&&u<.34)y=30+18;else if(u>.34&&u<.38)y=30-26;else if(u>.38&&u<.42)y=30+10;
+      else if(u>.5&&u<.62)y=30-7*Math.sin((u-.5)/.12*Math.PI);
+      i===0?ctx.moveTo(i,y):ctx.lineTo(i,y);}
+    ctx.stroke();x+=.02;requestAnimationFrame(f);}
+  f();
 }
-function vital(label,val,warn){return `<div class="vital ${warn?'warn':''}"><span>${label}</span><b>${val}</b></div>`;}
+
+function vital(label,ico,val,unit,level){
+  const cls=level===2?'crit':level===1?'warn':'';
+  return `<div class="vital ${cls}"><div class="vl">${ico} ${label}</div>
+    <div class="vv">${val}<span class="vu">${unit||''}</span></div></div>`;
+}
 
 function renderCompare(d,r){
-  const p=r.patient, v=p.presentation.vital_signs;
-  const sp=v.oxygen_saturation;
-  const sysCol=(s)=>s.source==='claude'?'Claude AI':'klinická pravidla';
-  const stepsHtml=(arr)=>arr&&arr.length?`<ul class="steps">${arr.map(s=>`<li>${s}</li>`).join('')}</ul>`:'';
-  const chips=(arr)=>arr&&arr.length?`<div class="chips">${arr.map(c=>`<span class="chip">${c}</span>`).join('')}</div>`:'';
-  const verdict=(vd)=>{const x=VERDICT[vd]||["—","v-acceptable"];return `<div class="verdict ${x[1]}">${x[0]}</div>`;};
+  const p=r.patient, v=p.presentation.vital_signs, sp=v.oxygen_saturation;
+  const hr=v.heart_rate, rr=v.respiratory_rate, tmp=v.temperature;
+  const srcLabel=r.agent.source==='claude'?'Claude AI':'klinická pravidla';
+  const pain=p.presentation.pain_scale||0;
+
+  const steps=(arr)=>arr&&arr.length?`<ul class="steps">${arr.map((s,i)=>
+    `<li style="animation-delay:${300+i*180}ms">${s}</li>`).join('')}</ul>`:'';
+  const chips=(arr,cls='')=>arr&&arr.length?`<div class="chips">${arr.map((c,i)=>
+    `<span class="chip ${cls}" style="animation-delay:${i*70}ms">${c}</span>`).join('')}</div>`:'';
+  const verdict=(vd)=>{const x=VERDICT[vd]||["—","",""];
+    return `<div class="verdict ${x[2]}"><span class="ic">${x[0]}</span>${x[1]}</div>`;};
+
+  const cond=(p.medical_history.conditions||[]);
+  const risk=(p.medical_history.risk_factors||[]);
 
   d.innerHTML=`
-    <h2>${p.name} <span style="color:var(--muted);font-weight:400">· ${p.age} let · ${p.gender}</span></h2>
-    <div class="reason">Hlavní stížnost: <b>${p.presentation.chief_complaint}</b> · bolest ${p.presentation.pain_scale}/10</div>
-    <div class="vitals">
-      ${vital('TK',v.blood_pressure)}
-      ${vital('Puls',v.heart_rate+'/min',v.heart_rate>120||v.heart_rate<50)}
-      ${vital('Dech',v.respiratory_rate+'/min',v.respiratory_rate>25)}
-      ${vital('Teplota',v.temperature+'°C',v.temperature>=39)}
-      ${vital('SpO₂',sp+'%',sp<94)}
-    </div>
-    <div class="reason" style="margin-top:10px">Anamnéza (EHR): ${(p.medical_history.conditions||[]).join(', ')||'žádná'}
-      · Rizika: ${(p.medical_history.risk_factors||[]).join(', ')||'žádná'}</div>
-
-    <div class="cols">
-      <div class="sys baseline">
-        <div class="sys-h"><span class="t">⚙️ Baseline systém</span>${prioBadge(r.baseline.priority)}</div>
-        <div class="reason">Rozhoduje jen z příznaků a vitálních funkcí — <b>nečte anamnézu</b>.</div>
-        <div class="reason">${r.baseline.reasoning||''}</div>
-        ${verdict(r.baseline.verdict)}
+    <div class="phead">
+      <div>
+        <h2>${p.name}</h2>
+        <div class="meta">${p.age} let · ${p.gender==='female'?'žena':'muž'} · ID ${p.id}</div>
+        <div class="cc-big">Hlavní stížnost: <b>${p.presentation.chief_complaint}</b></div>
       </div>
-      <div class="sys agent">
-        <div class="sys-h"><span class="t">🤖 AI Agent <span style="font-size:11px;color:var(--muted)">(${sysCol(r.agent)})</span></span>${prioBadge(r.agent.priority)}</div>
-        <div class="reason">Aktivně dohledává EHR + epidemiologii, hledá atypické prezentace.</div>
-        ${stepsHtml(r.agent.reasoning_steps)}
-        ${r.agent.differential_diagnosis?`<h3 style="margin-top:12px">Diferenciální dg.</h3>${chips(r.agent.differential_diagnosis)}`:''}
-        ${r.agent.recommended_actions?`<h3 style="margin-top:12px">Doporučené kroky</h3>${chips(r.agent.recommended_actions)}`:''}
-        ${verdict(r.agent.verdict)}
+    </div>
+    <div class="painbar"><span>Bolest</span>
+      <div class="track"><div class="fill" id="painFill"></div></div>
+      <span><b style="color:var(--txt)">${pain}</b>/10</span></div>
+
+    <div class="vitals">
+      ${vital('Krevní tlak','🩸',v.blood_pressure,'mmHg',0)}
+      ${vital('Tepová frekv.','💓',hr,'/min',hr>120||hr<50?2:hr>100||hr<60?1:0)}
+      ${vital('Dech. frekv.','🫁',rr,'/min',rr>25?2:rr>20?1:0)}
+      ${vital('Teplota','🌡️',tmp,'°C',tmp>=39?2:tmp>=38?1:0)}
+      ${vital('Saturace O₂','🅾️',sp,'%',sp<90?2:sp<94?1:0)}
+    </div>
+
+    <div class="ehr">
+      <span style="color:var(--dim)">📋 EHR:</span>
+      ${cond.length?cond.map(c=>`<span class="tagk">${c}</span>`).join(''):'<span class="tagk">bez chronických onemocnění</span>'}
+      ${risk.map(c=>`<span class="tagk risk">⚠ ${c}</span>`).join('')}
+    </div>
+
+    <div class="vswrap">
+      <div class="vs-badge">VS</div>
+      <div class="cols">
+        <div class="sys baseline" style="animation-delay:.05s">
+          <div class="sys-h"><span class="t">⚙️ Baseline systém</span></div>
+          <p class="note">Rozhoduje jen z příznaků a vitálních funkcí — <b style="color:#ffc79a">nečte anamnézu</b>.</p>
+          ${gauge(r.baseline.priority)}
+          <p class="note" style="margin-top:12px">${r.baseline.reasoning||''}</p>
+          <div class="sub-h">Limitace</div>
+          <p class="note" style="margin:0">${r.baseline.limitations||'—'}</p>
+          ${verdict(r.baseline.verdict)}
+        </div>
+
+        <div class="sys agent" style="animation-delay:.22s">
+          <div class="sys-h"><span class="t">🤖 AI Agent</span><span class="src">${srcLabel}</span></div>
+          <p class="note">Aktivně dohledává <b style="color:#7dd3fc">EHR + epidemiologii</b>, hledá atypické prezentace.</p>
+          ${gauge(r.agent.priority)}
+          <div class="thinking" id="thinkDots">Reasoning agenta<span class="d"></span><span class="d"></span><span class="d"></span></div>
+          ${steps(r.agent.reasoning_steps)}
+          ${r.agent.escalate?`<div class="escal"><span class="ic">🚨</span><div><b>Eskalace:</b> ${r.agent.escalation_reason||''}</div></div>`:''}
+          ${r.agent.differential_diagnosis&&r.agent.differential_diagnosis.length?`<div class="sub-h">Diferenciální diagnóza</div>${chips(r.agent.differential_diagnosis)}`:''}
+          ${r.agent.recommended_actions&&r.agent.recommended_actions.length?`<div class="sub-h">Doporučené kroky</div>${chips(r.agent.recommended_actions,'act')}`:''}
+          ${verdict(r.agent.verdict)}
+        </div>
       </div>
     </div>
 
     <div class="truth">
-      🩺 <b>Skutečná diagnóza:</b> ${p.true_diagnosis} &nbsp;·&nbsp;
-      <b>Správná priorita:</b> ${prioBadge(p.true_priority)}
-      ${p.notes?`<div class="reason" style="margin-top:6px">${p.notes}</div>`:''}
+      <h4>🩺 Ground truth · skutečnost</h4>
+      <div class="dx">${p.true_diagnosis} &nbsp; ${prioBadge(p.true_priority)}</div>
+      ${p.notes?`<div class="notes">${p.notes}</div>`:''}
     </div>`;
+
+  // animace bolesti
+  requestAnimationFrame(()=>{const f=document.getElementById('painFill');if(f)f.style.width=(pain*10)+'%';});
+  // schovat "thinking" tečky po dokončení reasoningu
+  const n=(r.agent.reasoning_steps||[]).length;
+  setTimeout(()=>{const td=document.getElementById('thinkDots');if(td)td.style.display='none';},300+n*180+200);
+}
+
+function prioBadge(p){const i=PRIO[p]||PRIO[3];
+  return `<span class="prio" style="background:${i.hex}">P${p} · ${i.n}</span>`;}
+
+/* ===== EVALUACE ===== */
+function countUp(el,to,suffix='',dur=1100){
+  const start=performance.now();const from=0;
+  function f(now){const t=Math.min(1,(now-start)/dur);
+    const e=1-Math.pow(1-t,3); // easeOutCubic
+    el.textContent=(to%1===0?Math.round(from+(to-from)*e):(from+(to-from)*e).toFixed(1))+suffix;
+    if(t<1)requestAnimationFrame(f);}
+  requestAnimationFrame(f);
 }
 
 async function loadEval(){
   const box=document.getElementById('evalBox');
-  box.innerHTML='<div class="loading">⏳ Vyhodnocuji oba systémy na všech pacientech…</div>';
+  const btn=document.getElementById('evalBtn');
+  btn.disabled=true;btn.style.opacity='.6';
+  box.innerHTML=`<div class="scan" style="padding:50px"><div class="bar"><i></i></div>
+    <h3 style="margin-top:18px">Vyhodnocuji oba systémy na všech pacientech…</h3></div>`;
   try{
     const r=await api('/api/evaluate');
     renderEval(box,r);
-  }catch(e){box.innerHTML='<div class="placeholder">Chyba: '+e.message+'</div>';}
-}
-
-function metricCard(title,cls,m){
-  return `<div class="mcard ${cls}">
-    <h2>${title}</h2>
-    <div class="mrow"><span>🔴 Undertriage (podhodnocení)</span><span class="big" style="color:var(--p1)">${m.undertriage} <small>(${m.undertriage_rate}%)</small></span></div>
-    <div class="mrow"><span>🟠 Overtriage (planý poplach)</span><span class="big" style="color:var(--p2)">${m.overtriage} <small>(${m.overtriage_rate}%)</small></span></div>
-    <div class="mrow"><span>✓ Přesnost</span><span class="big" style="color:var(--p4)">${m.accuracy}%</span></div>
-  </div>`;
+  }catch(e){box.innerHTML='<div class="placeholder"><div class="ico">⚠️</div><p>'+e.message+'</p></div>';}
+  finally{btn.disabled=false;btn.style.opacity='1';}
 }
 
 function renderEval(box,r){
-  const tag=(v)=>{const x=VERDICT[v]||["—","v-acceptable"];
-    const col={correct:'#16a34a',acceptable:'#3b82f6',undertriage:'#ef4444',overtriage:'#f97316'}[v]||'#888';
-    return `<span class="tag" style="background:${col}33;color:${col}">${x[0]}</span>`;};
+  const agentWins=r.agent.accuracy>=r.baseline.accuracy;
+  const mcard=(title,ico,cls,m,isAgent)=>`
+    <div class="mcard ${cls}" style="animation-delay:${isAgent?'.18s':'.04s'}">
+      ${isAgent&&agentWins?'<div class="winner">★ VÍTĚZ</div>':''}
+      <h3>${ico} ${title}</h3>
+      <div class="sub">${isAgent?'dohledává EHR + epidemiologii, hledá atypické případy':'jen příznaky a vitální funkce'}</div>
+      <div class="big-acc" data-acc="${m.accuracy}">0<small>%</small></div>
+      <div class="acc-lbl">přesnost triáže</div>
+      <div style="margin-top:18px">
+        <div class="mrow"><span>🔴 Undertriage<br><small style="color:var(--dim)">podhodnocení — život ohrožující</small></span>
+          <div style="text-align:right"><div class="v" style="color:var(--p1)" data-cnt="${m.undertriage}">0</div>
+          <div class="mbar"><i style="background:var(--p1)" data-w="${Math.min(100,m.undertriage_rate)}"></i></div></div></div>
+        <div class="mrow"><span>🟠 Overtriage<br><small style="color:var(--dim)">planý poplach</small></span>
+          <div style="text-align:right"><div class="v" style="color:var(--p2)" data-cnt="${m.overtriage}">0</div>
+          <div class="mbar"><i style="background:var(--p2)" data-w="${Math.min(100,m.overtriage_rate)}"></i></div></div></div>
+        <div class="mrow"><span>✅ Správně zatříděno</span>
+          <div class="v" style="color:var(--p4)" data-cnt="${m.correct}">0<small> / ${r.total}</small></div></div>
+      </div>
+    </div>`;
+
+  const tag=(v)=>{const x=VERDICT[v]||["—","",""];
+    const col={correct:'#34e0a1',acceptable:'#4d9bff',undertriage:'#ff3b5c',overtriage:'#ff8a3d'}[v]||'#888';
+    return `<span class="tag" style="background:${col}22;color:${col};border:1px solid ${col}55">${x[0]} ${v==='correct'?'OK':v==='undertriage'?'UNDER':v==='overtriage'?'OVER':'~'}</span>`;};
+  const pcell=(p)=>{const i=PRIO[p]||PRIO[3];
+    return `<span class="pp"><span class="ppd" style="background:${i.hex};box-shadow:0 0 6px ${i.hex}"></span>P${p}</span>`;};
+
   let rows='';
-  r.agent.rows.forEach((a,i)=>{
-    const b=r.baseline.rows[i];
-    rows+=`<tr>
-      <td>${a.name}</td>
-      <td>${a.true_diagnosis}</td>
-      <td>P${a.true_priority}</td>
-      <td>P${b.predicted} ${tag(b.verdict)}</td>
-      <td>P${a.predicted} ${tag(a.verdict)}</td>
-    </tr>`;
-  });
+  r.agent.rows.forEach((a,i)=>{const b=r.baseline.rows[i];
+    rows+=`<tr style="animation-delay:${i*45}ms">
+      <td class="pname">${a.name}</td>
+      <td style="color:var(--muted)">${a.true_diagnosis}</td>
+      <td>${pcell(a.true_priority)}</td>
+      <td>${pcell(b.predicted)} ${tag(b.verdict)}</td>
+      <td>${pcell(a.predicted)} ${tag(a.verdict)}</td>
+    </tr>`;});
+
   box.innerHTML=`
-    <div class="metrics" style="margin-top:18px">
-      ${metricCard('⚙️ Baseline','baseline',r.baseline)}
-      ${metricCard('🤖 AI Agent','agent',r.agent)}
+    <div class="metrics">
+      ${mcard('Baseline systém','⚙️','baseline',r.baseline,false)}
+      ${mcard('AI Agent','🤖','agent',r.agent,true)}
     </div>
-    <table>
-      <thead><tr><th>Pacient</th><th>Skutečná dg.</th><th>Správně</th><th>Baseline</th><th>AI Agent</th></tr></thead>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Pacient</th><th>Skutečná diagnóza</th><th>Správně</th><th>⚙️ Baseline</th><th>🤖 AI Agent</th></tr></thead>
       <tbody>${rows}</tbody>
-    </table>`;
+    </table></div>`;
+
+  // animované count-upy + bary
+  box.querySelectorAll('.big-acc').forEach(el=>countUp(el,parseFloat(el.dataset.acc),'%',1200));
+  box.querySelectorAll('[data-cnt]').forEach(el=>countUp(el,parseInt(el.dataset.cnt),'',900));
+  requestAnimationFrame(()=>box.querySelectorAll('.mbar i').forEach(i=>i.style.width=i.dataset.w+'%'));
 }
 
 init();

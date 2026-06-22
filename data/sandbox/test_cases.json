@@ -1,0 +1,234 @@
+{
+  "test_cases": [
+    {
+      "id": "TC001",
+      "patient_id": "P001",
+      "name": "Atypický infarkt u ženy",
+      "description": "45letá žena s diabetem a hypertenzí, přichází s bolestí břicha a nevolností. Typické příznaky infarktu chybí.",
+      "baseline_decision": {
+        "priority": 4,
+        "reasoning": "Nespecifické bolesti břicha, vitální funkce relativně stabilní",
+        "risk": "CRITICAL UNDERTRIAGE - Přehlédnutí infarktu"
+      },
+      "expected_agent_decision": {
+        "priority": 1,
+        "reasoning": "Diabetes + hypertenze + rodinná anamnéza KV onemocnění + žena (atypické příznaky) = vysoké riziko atypického infarktu. Eskalovat okamžitě.",
+        "actions": [
+          "get_presentation(P001)",
+          "get_history(P001) - detekuje rizikové faktory",
+          "escalate(P001, 'Podezření na atypický infarkt myokardu u rizikové pacientky')"
+        ]
+      },
+      "true_priority": 1,
+      "clinical_pearls": "Ženy častěji mají atypické příznaky infarktu - bolest břicha, nevolnost, únava místo klasické bolesti na hrudi. Diabetes je silný RF pro kardiovaskulární onemocnění."
+    },
+    {
+      "id": "TC002",
+      "patient_id": "P007",
+      "name": "Dětská pneumonie s respirační insuficiencí",
+      "description": "8leté dítě s astmatem, kašel, teplota 39.1°C, SpO2 91%",
+      "baseline_decision": {
+        "priority": 3,
+        "reasoning": "Respirační infekce, vysoká teplota, ale vědomí při vědomí",
+        "risk": "UNDERTRIAGE - Přehlédnutí respirační insuficience"
+      },
+      "expected_agent_decision": {
+        "priority": 1,
+        "reasoning": "SpO2 91% = respirační insuficience! Dítě s astmatem a historií pneumonie. Vysoká RR (35/min), tachykardie. Urgentní případ.",
+        "actions": [
+          "get_presentation(P007)",
+          "get_history(P007) - astma, předchozí pneumonie",
+          "escalate(P007, 'Respirační insuficience u dítěte s astmatem - okamžitá péče, kyslík')"
+        ]
+      },
+      "true_priority": 1,
+      "clinical_pearls": "SpO2 <94% u dětí je alarmující. Astma + respirační infekce = riziko těžké exacerbace."
+    },
+    {
+      "id": "TC003",
+      "patient_id": "P009",
+      "name": "Subarachnoidální krvácení maskované migrénami",
+      "description": "63letá žena s anamnézou migrén, nejhorší bolest hlavy v životě, ztuhlá šíje",
+      "baseline_decision": {
+        "priority": 3,
+        "reasoning": "Známá migrenózní pacientka, již měla podobné záchvaty",
+        "risk": "CRITICAL UNDERTRIAGE - SAH má 50% mortalitu pokud není léčeno"
+      },
+      "expected_agent_decision": {
+        "priority": 1,
+        "reasoning": "'Thunderclap headache' (nejhorší v životě) + ztuhlá šíje + fotofóbie = SAH DO VYLOUČENÍ. Anamnéza migrén nesmí vést k bagatelizaci.",
+        "actions": [
+          "get_presentation(P009)",
+          "get_history(P009) - migréna v anamnéze, ale TENTO záchvat je jiný",
+          "escalate(P009, 'Podezření na SAH - thunderclap headache + meningeální příznaky. CT mozku STAT!')"
+        ]
+      },
+      "true_priority": 1,
+      "clinical_pearls": "Red flag: 'Nejhorší bolest hlavy v životě' = SAH do vyloučení. Nikdy nezaměňovat s migrénou bez CT vyšetření."
+    },
+    {
+      "id": "TC004",
+      "patient_id": "P011",
+      "name": "Plicní embolie u mladé ženy",
+      "description": "31letá žena, náhlá dušnost po dlouhém letu, užívá hormonální antikoncepci",
+      "baseline_decision": {
+        "priority": 3,
+        "reasoning": "Mladá, jinak zdravá pacientka, možná panická ataka",
+        "risk": "CRITICAL UNDERTRIAGE - Plicní embolie bez léčby může být fatální"
+      },
+      "expected_agent_decision": {
+        "priority": 1,
+        "reasoning": "Dlouhý let + hormonální AC + náhlá dušnost + SpO2 93% + tachykardie = KLASICKÁ PLICNÍ EMBOLIE. Wells score vysoké.",
+        "actions": [
+          "get_presentation(P011)",
+          "get_history(P011) - detekuje dlouhý let (24h z Austrálie) + AC",
+          "escalate(P011, 'Vysoké podezření na plicní embolii - Wells score pozitivní. CT angiografie plic!')"
+        ]
+      },
+      "true_priority": 1,
+      "clinical_pearls": "Virchowova trias: stáza (dlouhý let) + hyperkoagulace (hormonální AC) + poškození cévy. Nikdy nepodcenit dušnost u ženy na AC po letu."
+    },
+    {
+      "id": "TC005",
+      "patient_id": "P012",
+      "name": "Gastrointestinální krvácení u NSAID uživatele",
+      "description": "68letý muž, meléna 2 dny, slabost, dlouhodobě užívá ibuprofen",
+      "baseline_decision": {
+        "priority": 4,
+        "reasoning": "Nízká bolest, vitální funkce relativně OK (BP 100/60 může být jeho norma)",
+        "risk": "UNDERTRIAGE - Aktivní GI krvácení může rychle progredovat"
+      },
+      "expected_agent_decision": {
+        "priority": 2,
+        "reasoning": "Meléna (horní GI krvácení) + hypotenze + tachykardie + dlouhodobé NSAID = peptický vřed s aktivním krváceníím. Urgentní endoskopie.",
+        "actions": [
+          "get_presentation(P012)",
+          "get_history(P012) - dlouhodobé NSAID = hlavní RF pro peptický vřed",
+          "escalate(P012, 'GI krvácení u pacienta na NSAID - hypotenze, meléna. Urgentní gastroenterologie.')"
+        ]
+      },
+      "true_priority": 2,
+      "clinical_pearls": "Meléna = horní GI krvácení. NSAID jsou hlavní příčina peptických vředů. Hypotenze u starší osoby je vážný znak."
+    },
+    {
+      "id": "TC006",
+      "patient_id": "P004",
+      "name": "Planý poplach - GERD ne infarkt",
+      "description": "35letý muž, bolest na hrudi, ale pálivá, po jídle, s refluxem v anamnéze",
+      "baseline_decision": {
+        "priority": 2,
+        "reasoning": "Bolest na hrudi = vždy eskalovat do kardiologie",
+        "risk": "OVERTRIAGE - Plýtvání zdroji kardiologie"
+      },
+      "expected_agent_decision": {
+        "priority": 4,
+        "reasoning": "Pálivá bolest + zhoršení po jídle + kyselý pocit + reflux v anamnéze = typický GERD. Nekardiální bolest. Nízká priorita.",
+        "actions": [
+          "get_presentation(P004)",
+          "get_history(P004) - reflux v anamnéze, PPI v minulosti",
+          "NO escalate - jasná diagnóza GERD"
+        ]
+      },
+      "true_priority": 4,
+      "clinical_pearls": "Nekardiální bolest: pálivá, po jídle, úleva na antacidech, anamnéza refluxu. Stále opatrně u RF pacientů."
+    },
+    {
+      "id": "TC007",
+      "patient_id": "P010",
+      "name": "Planý poplach - panická ataka",
+      "description": "25letý muž, hyperventilace, tachykardie, strach z umírání, anamnéza úzkosti",
+      "baseline_decision": {
+        "priority": 2,
+        "reasoning": "Tachykardie + dušnost = možný kardiální problém",
+        "risk": "OVERTRIAGE - Zahlcení systému"
+      },
+      "expected_agent_decision": {
+        "priority": 4,
+        "reasoning": "SpO2 99% (ne hypoxie!), anamnéza úzkostné poruchy + předchozí panické ataky, klasické příznaky. Není život ohrožující.",
+        "actions": [
+          "get_presentation(P010)",
+          "get_history(P010) - úzkostná porucha, Sertralin, předchozí PA",
+          "NO escalate - panická ataka, uklidnění, observace"
+        ]
+      },
+      "true_priority": 4,
+      "clinical_pearls": "Panická ataka: hyperventilace + normální SpO2 + anamnéza úzkosti + strach z umírání. Vyloučit organickou příčinu, pak uklidnění."
+    },
+    {
+      "id": "TC008",
+      "patient_id": "P002",
+      "name": "Kontextové rozhodování - chřipka v epidemii",
+      "description": "28letý muž, kašel, teplota 38.2°C, během epidemie chřipky",
+      "baseline_decision": {
+        "priority": 3,
+        "reasoning": "Standardní respirační infekce",
+        "risk": "Neoptimální - během epidemie by měl být triážován rychleji kvůli náporu"
+      },
+      "expected_agent_decision": {
+        "priority": 3,
+        "reasoning": "Běžná chřipka, АЛЕ: epidemie = vysoký nápor. Agent navrhne rychlou triáž a doporučí ambulantní léčbu pro uvolnění kapacity.",
+        "actions": [
+          "get_presentation(P002)",
+          "get_epidemiology(2026-06-22) - detekuje epidemii chřipky",
+          "Doporučení: rychlá triáž, ambulantní léčba, nápor na systém"
+        ]
+      },
+      "true_priority": 3,
+      "clinical_pearls": "Během epidemií je klíčové rychle identifikovat nekritické případy a řídit je ambulantně pro zachování kapacity pro urgentní případy."
+    }
+  ],
+  "evaluation_metrics": {
+    "undertriage": {
+      "definition": "Počet případů s true_priority 1-2, které byly triážovány jako 3-5",
+      "weight": "CRITICAL - může vést ke smrti pacienta",
+      "acceptable_rate": "< 5%"
+    },
+    "overtriage": {
+      "definition": "Počet případů s true_priority 4-5, které byly triážovány jako 1-2",
+      "weight": "IMPORTANT - plýtvání zdroji, zahlcení",
+      "acceptable_rate": "< 15%"
+    },
+    "throughput": {
+      "definition": "Počet správně triážovaných pacientů za hodinu",
+      "weight": "IMPORTANT - efektivita systému"
+    },
+    "patient_questions": {
+      "definition": "Průměrný počet ask_patient() volání per pacient",
+      "weight": "MODERATE - efektivita agenta",
+      "baseline": 5,
+      "target": "< 2"
+    }
+  },
+  "czech_triage_standard": {
+    "priority_1": {
+      "name": "Resuscitace",
+      "color": "červená",
+      "time_to_care": "okamžitě",
+      "examples": "CMP, infarkt, respirační insuficience, šok"
+    },
+    "priority_2": {
+      "name": "Emergentní",
+      "color": "oranžová",
+      "time_to_care": "< 10 min",
+      "examples": "Zlomeniny, apendicitida, GI krvácení"
+    },
+    "priority_3": {
+      "name": "Urgentní",
+      "color": "žlutá",
+      "time_to_care": "< 60 min",
+      "examples": "Febrilní stavy, infekce"
+    },
+    "priority_4": {
+      "name": "Méně urgentní",
+      "color": "zelená",
+      "time_to_care": "< 120 min",
+      "examples": "Lehké bolesti, reflux, panická ataka"
+    },
+    "priority_5": {
+      "name": "Necitlivé",
+      "color": "modrá",
+      "time_to_care": "< 240 min",
+      "examples": "Administrativní záležitosti, lehké úrazy"
+    }
+  }
+}

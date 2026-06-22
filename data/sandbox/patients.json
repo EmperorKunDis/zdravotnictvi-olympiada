@@ -1,0 +1,456 @@
+{
+  "patients": [
+    {
+      "id": "P001",
+      "name": "Jana Nováková",
+      "age": 45,
+      "gender": "female",
+      "presentation": {
+        "chief_complaint": "Bolest břicha a nevolnost",
+        "vital_signs": {
+          "blood_pressure": "135/85",
+          "heart_rate": 88,
+          "respiratory_rate": 18,
+          "temperature": 36.8,
+          "oxygen_saturation": 97
+        },
+        "symptoms": [
+          "Bolest v nadbřišku vpravo",
+          "Nevolnost",
+          "Lehká únava"
+        ],
+        "pain_scale": 5,
+        "arrival_time": "2026-06-22T09:15:00Z"
+      },
+      "medical_history": {
+        "conditions": ["Diabetes mellitus typ 2", "Hypertenze"],
+        "medications": ["Metformin", "Enalapril"],
+        "allergies": [],
+        "previous_visits": [
+          {
+            "date": "2025-11-10",
+            "reason": "Kontrola diabetes",
+            "outcome": "Stabilní stav"
+          }
+        ],
+        "risk_factors": ["Rodinná anamnéza kardiovaskulárních onemocnění", "Kouření (10 let v minulosti)"]
+      },
+      "true_diagnosis": "Atypický infarkt myokardu",
+      "true_priority": 1,
+      "notes": "ZÁLUDNÝ PŘÍPAD: Žena s netypickými příznaky infarktu - bolest břicha místo tlaku na hrudi. Baseline řešení ji pošle do nízké priority (3-4), protože nemá klasické příznaky. Agent by měl detekovat rizikové faktory (diabetes, hypertenze, rodinná anamnéza) a eskalovat."
+    },
+    {
+      "id": "P002",
+      "name": "Petr Svoboda",
+      "age": 28,
+      "gender": "male",
+      "presentation": {
+        "chief_complaint": "Kašel a teplota",
+        "vital_signs": {
+          "blood_pressure": "120/75",
+          "heart_rate": 82,
+          "respiratory_rate": 20,
+          "temperature": 38.2,
+          "oxygen_saturation": 96
+        },
+        "symptoms": [
+          "Suchý kašel 3 dny",
+          "Teplota 38-39°C",
+          "Bolest hlavy",
+          "Únava"
+        ],
+        "pain_scale": 2,
+        "arrival_time": "2026-06-22T09:20:00Z"
+      },
+      "medical_history": {
+        "conditions": [],
+        "medications": [],
+        "allergies": ["Penicilin"],
+        "previous_visits": [],
+        "risk_factors": []
+      },
+      "true_diagnosis": "Chřipka (během epidemie)",
+      "true_priority": 3,
+      "notes": "KONTEXTOVÝ PŘÍPAD: Běžná chřipka, ale v období epidemie. Agent by měl zohlednit epidemiologickou situaci a prioritizovat podle aktuálního náporu."
+    },
+    {
+      "id": "P003",
+      "name": "Marie Horáková",
+      "age": 72,
+      "gender": "female",
+      "presentation": {
+        "chief_complaint": "Pád doma, bolest kyčle",
+        "vital_signs": {
+          "blood_pressure": "110/70",
+          "heart_rate": 75,
+          "respiratory_rate": 16,
+          "temperature": 36.5,
+          "oxygen_saturation": 98
+        },
+        "symptoms": [
+          "Pád před 1 hodinou",
+          "Nemůže vstát",
+          "Bolest pravé kyčle",
+          "Otok pravé nohy"
+        ],
+        "pain_scale": 8,
+        "arrival_time": "2026-06-22T09:25:00Z"
+      },
+      "medical_history": {
+        "conditions": ["Osteoporóza", "Hypertenze"],
+        "medications": ["Alendronate", "Vápník+D3", "Losartan"],
+        "allergies": [],
+        "previous_visits": [
+          {
+            "date": "2024-03-15",
+            "reason": "Zlomenina zápěstí",
+            "outcome": "Operace, zhojeno"
+          }
+        ],
+        "risk_factors": ["Osteoporóza", "Věk 70+", "Historie zlomenin"]
+      },
+      "true_diagnosis": "Zlomenina krčku femuru",
+      "true_priority": 2,
+      "notes": "STANDARD: Jasný případ urgentní péče. Starší pacient s osteoporózou, pád, nemůže vstát."
+    },
+    {
+      "id": "P004",
+      "name": "Tomáš Černý",
+      "age": 35,
+      "gender": "male",
+      "presentation": {
+        "chief_complaint": "Bolest na hrudi",
+        "vital_signs": {
+          "blood_pressure": "125/80",
+          "heart_rate": 95,
+          "respiratory_rate": 22,
+          "temperature": 36.9,
+          "oxygen_saturation": 99
+        },
+        "symptoms": [
+          "Pálivá bolest za hrudní kostí",
+          "Zhoršení po jídle",
+          "Kyselý pocit v ústech"
+        ],
+        "pain_scale": 6,
+        "arrival_time": "2026-06-22T09:30:00Z"
+      },
+      "medical_history": {
+        "conditions": [],
+        "medications": [],
+        "allergies": [],
+        "previous_visits": [
+          {
+            "date": "2025-08-20",
+            "reason": "Gastroezofageální reflux",
+            "outcome": "Předepsány PPI"
+          }
+        ],
+        "risk_factors": ["Reflux v anamnéze"]
+      },
+      "true_diagnosis": "Gastroezofageální reflux (GERD)",
+      "true_priority": 4,
+      "notes": "PLANÝ POPLACH: Baseline může eskalovat kvůli 'bolesti na hrudi', ale jde o nekardiální bolest. Agent by měl rozpoznat podle anamnézy a charakteru bolesti."
+    },
+    {
+      "id": "P005",
+      "name": "Eva Málková",
+      "age": 19,
+      "gender": "female",
+      "presentation": {
+        "chief_complaint": "Silná bolest břicha vpravo dole",
+        "vital_signs": {
+          "blood_pressure": "115/70",
+          "heart_rate": 105,
+          "respiratory_rate": 20,
+          "temperature": 38.5,
+          "oxygen_saturation": 98
+        },
+        "symptoms": [
+          "Ostrá bolest v pravém podbřišku",
+          "Nevolnost a zvracení",
+          "Teplota od včerejška",
+          "Ztráta chuti k jídlu"
+        ],
+        "pain_scale": 9,
+        "arrival_time": "2026-06-22T09:35:00Z"
+      },
+      "medical_history": {
+        "conditions": [],
+        "medications": [],
+        "allergies": [],
+        "previous_visits": [],
+        "risk_factors": []
+      },
+      "true_diagnosis": "Akutní apendicitida",
+      "true_priority": 2,
+      "notes": "STANDARD: Klasická akutní apendicitida. Urgentní stav vyžadující rychlou diagnostiku a operaci."
+    },
+    {
+      "id": "P006",
+      "name": "Jan Dvořák",
+      "age": 55,
+      "gender": "male",
+      "presentation": {
+        "chief_complaint": "Zmatený stav, slabost pravé strany těla",
+        "vital_signs": {
+          "blood_pressure": "170/100",
+          "heart_rate": 88,
+          "respiratory_rate": 18,
+          "temperature": 36.7,
+          "oxygen_saturation": 96
+        },
+        "symptoms": [
+          "Náhlá slabost pravé ruky",
+          "Obtíže s řečí (poslední hodina)",
+          "Dezorientace",
+          "Asymetrie obličeje"
+        ],
+        "pain_scale": 0,
+        "arrival_time": "2026-06-22T09:40:00Z"
+      },
+      "medical_history": {
+        "conditions": ["Hypertenze", "Fibrilace síní"],
+        "medications": ["Warfarin", "Metoprolol"],
+        "allergies": [],
+        "previous_visits": [
+          {
+            "date": "2025-06-15",
+            "reason": "Kontrola antikoagulace",
+            "outcome": "INR v normě"
+          }
+        ],
+        "risk_factors": ["Hypertenze", "Fibrilace síní", "Věk 50+"]
+      },
+      "true_diagnosis": "Cévní mozková příhoda (CMP)",
+      "true_priority": 1,
+      "notes": "RESUSCITACE: Akutní CMP - čas = mozek. Urgentní péče do 4.5h od nástupu příznaků."
+    },
+    {
+      "id": "P007",
+      "name": "Lucie Procházková",
+      "age": 8,
+      "gender": "female",
+      "presentation": {
+        "chief_complaint": "Kašel a dušnost",
+        "vital_signs": {
+          "blood_pressure": "95/60",
+          "heart_rate": 120,
+          "respiratory_rate": 35,
+          "temperature": 39.1,
+          "oxygen_saturation": 91
+        },
+        "symptoms": [
+          "Těžký kašel 2 dny",
+          "Dušnost",
+          "Pískání při dýchání",
+          "Vysoká teplota",
+          "Únava, neschopnost pít"
+        ],
+        "pain_scale": 3,
+        "arrival_time": "2026-06-22T09:45:00Z"
+      },
+      "medical_history": {
+        "conditions": ["Astma bronchiale"],
+        "medications": ["Salbutamol (záchranný inhalátor)"],
+        "allergies": [],
+        "previous_visits": [
+          {
+            "date": "2026-01-20",
+            "reason": "Zápal plic",
+            "outcome": "Hospitalizace 5 dnů, zhojeno"
+          }
+        ],
+        "risk_factors": ["Astma", "Recidivující respirační infekce"]
+      },
+      "true_diagnosis": "Těžká pneumonie s respirační insuficiencí",
+      "true_priority": 1,
+      "notes": "ZÁLUDNÝ PŘÍPAD: Dítě s astmatem a respirační insuficiencí (SpO2 91%). Vyžaduje okamžitou péči. Baseline může podhodnotit závažnost."
+    },
+    {
+      "id": "P008",
+      "name": "Karel Novotný",
+      "age": 42,
+      "gender": "male",
+      "presentation": {
+        "chief_complaint": "Úraz při sportu - podvrtnutý kotník",
+        "vital_signs": {
+          "blood_pressure": "130/85",
+          "heart_rate": 78,
+          "respiratory_rate": 16,
+          "temperature": 36.6,
+          "oxygen_saturation": 99
+        },
+        "symptoms": [
+          "Otok levého kotníku",
+          "Bolest při chůzi",
+          "Podvrtnutí před 30 minutami při fotbale"
+        ],
+        "pain_scale": 5,
+        "arrival_time": "2026-06-22T09:50:00Z"
+      },
+      "medical_history": {
+        "conditions": [],
+        "medications": [],
+        "allergies": [],
+        "previous_visits": [],
+        "risk_factors": []
+      },
+      "true_diagnosis": "Distorze kotníku",
+      "true_priority": 5,
+      "notes": "STANDARD: Nekritický úraz. Může počkat."
+    },
+    {
+      "id": "P009",
+      "name": "Alena Křížová",
+      "age": 63,
+      "gender": "female",
+      "presentation": {
+        "chief_complaint": "Silná bolest hlavy a ztuhlá šíje",
+        "vital_signs": {
+          "blood_pressure": "145/90",
+          "heart_rate": 92,
+          "respiratory_rate": 18,
+          "temperature": 37.8,
+          "oxygen_saturation": 97
+        },
+        "symptoms": [
+          "Náhlá velmi silná bolest hlavy (nejhorší v životě)",
+          "Ztuhlost šíje",
+          "Nevolnost a zvracení",
+          "Fotofóbie"
+        ],
+        "pain_scale": 10,
+        "arrival_time": "2026-06-22T09:55:00Z"
+      },
+      "medical_history": {
+        "conditions": ["Migrény"],
+        "medications": ["Sumatriptan při záchvatech"],
+        "allergies": [],
+        "previous_visits": [
+          {
+            "date": "2025-09-10",
+            "reason": "Migrénózní záchvat",
+            "outcome": "Medikace, propuštěna"
+          }
+        ],
+        "risk_factors": ["Migréna v anamnéze", "Věk 60+"]
+      },
+      "true_diagnosis": "Subarachnoidální krvácení (SAH)",
+      "true_priority": 1,
+      "notes": "ZÁLUDNÝ PŘÍPAD: 'Thunderclap headache' - může vypadat jako migréna, ale jde o život ohrožující SAH. Anamnéza migrén může svádět k podhodnocení. Agent musí detekovat 'nejhorší bolest hlavy v životě' + ztuhlá šíje."
+    },
+    {
+      "id": "P010",
+      "name": "David Kučera",
+      "age": 25,
+      "gender": "male",
+      "presentation": {
+        "chief_complaint": "Anxiety a hyperventilace",
+        "vital_signs": {
+          "blood_pressure": "135/88",
+          "heart_rate": 115,
+          "respiratory_rate": 28,
+          "temperature": 36.9,
+          "oxygen_saturation": 99
+        },
+        "symptoms": [
+          "Pocit nedostatku vzduchu",
+          "Bušení srdce",
+          "Mravenčení v rukou",
+          "Strach z umírání"
+        ],
+        "pain_scale": 0,
+        "arrival_time": "2026-06-22T10:00:00Z"
+      },
+      "medical_history": {
+        "conditions": ["Úzkostná porucha"],
+        "medications": ["Sertralin"],
+        "allergies": [],
+        "previous_visits": [
+          {
+            "date": "2025-12-05",
+            "reason": "Panická ataka",
+            "outcome": "Uklidnění, propuštěn"
+          }
+        ],
+        "risk_factors": []
+      },
+      "true_diagnosis": "Panická ataka",
+      "true_priority": 4,
+      "notes": "PLANÝ POPLACH: Může vypadat urgentně (tachykardie, hyperventilace), ale není život ohrožující. Agent by měl rozpoznat podle anamnézy úzkosti."
+    },
+    {
+      "id": "P011",
+      "name": "Barbora Veselá",
+      "age": 31,
+      "gender": "female",
+      "presentation": {
+        "chief_complaint": "Dušnost a bolest na hrudi při nádechu",
+        "vital_signs": {
+          "blood_pressure": "110/65",
+          "heart_rate": 108,
+          "respiratory_rate": 24,
+          "temperature": 36.8,
+          "oxygen_saturation": 93
+        },
+        "symptoms": [
+          "Náhlá dušnost před 2 hodinami",
+          "Ostrá bolest na hrudi při nádechu",
+          "Pocit úzkosti"
+        ],
+        "pain_scale": 7,
+        "arrival_time": "2026-06-22T10:05:00Z"
+      },
+      "medical_history": {
+        "conditions": [],
+        "medications": ["Hormonální antikoncepce"],
+        "allergies": [],
+        "previous_visits": [
+          {
+            "date": "2026-06-15",
+            "reason": "Dlouhý let z Austrálie (24h)",
+            "outcome": "Preventivní kontrola - v normě"
+          }
+        ],
+        "risk_factors": ["Hormonální antikoncepce", "Dlouhý let (riziko trombózy)"]
+      },
+      "true_diagnosis": "Plicní embolie",
+      "true_priority": 1,
+      "notes": "ZÁLUDNÝ PŘÍPAD: Mladá žena s náhlou dušností po dlouhém letu + hormonální antikoncepce = vysoké riziko plicní embolie. Baseline může podcenit, protože jinak zdravá."
+    },
+    {
+      "id": "P012",
+      "name": "Josef Mareš",
+      "age": 68,
+      "gender": "male",
+      "presentation": {
+        "chief_complaint": "Krev ve stolici",
+        "vital_signs": {
+          "blood_pressure": "100/60",
+          "heart_rate": 95,
+          "respiratory_rate": 18,
+          "temperature": 36.5,
+          "oxygen_saturation": 96
+        },
+        "symptoms": [
+          "Tmavá stolice (meléna) 2 dny",
+          "Slabost a závratě",
+          "Bledost"
+        ],
+        "pain_scale": 1,
+        "arrival_time": "2026-06-22T10:10:00Z"
+      },
+      "medical_history": {
+        "conditions": ["Artritida"],
+        "medications": ["Ibuprofen 3x denně (dlouhodobě)"],
+        "allergies": [],
+        "previous_visits": [],
+        "risk_factors": ["Dlouhodobé užívání NSAID", "Věk 65+"]
+      },
+      "true_diagnosis": "Gastrointestinální krvácení (peptický vřed)",
+      "true_priority": 2,
+      "notes": "ZÁLUDNÝ: Meléna + hypotenze + dlouhodobé NSAID = GI krvácení. Vyžaduje urgentní péči i bez dramatických příznaků."
+    }
+  ]
+}

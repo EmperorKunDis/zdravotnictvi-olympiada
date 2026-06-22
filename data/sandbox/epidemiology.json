@@ -1,0 +1,138 @@
+{
+  "epidemiology_data": [
+    {
+      "date": "2026-06-22",
+      "region": "Plzeň",
+      "conditions": {
+        "influenza": {
+          "status": "epidemic",
+          "incidence_per_100k": 450,
+          "trend": "increasing",
+          "severity": "high",
+          "notes": "Epidemie chřipky v Plzeňském kraji. Očekávaný nárůst respiračních případů na urgentním příjmu."
+        },
+        "covid19": {
+          "status": "endemic",
+          "incidence_per_100k": 35,
+          "trend": "stable",
+          "severity": "low",
+          "notes": "Nízká endemická aktivita"
+        },
+        "rsv": {
+          "status": "seasonal",
+          "incidence_per_100k": 85,
+          "trend": "stable",
+          "severity": "moderate",
+          "notes": "Respirační syncytiální virus - zejména děti"
+        },
+        "gastroenteritis": {
+          "status": "normal",
+          "incidence_per_100k": 120,
+          "trend": "stable",
+          "severity": "low",
+          "notes": "Sezónní gastroenteritidy"
+        }
+      },
+      "expected_surge": {
+        "respiratory_cases": "+40%",
+        "cardiovascular_cases": "stable",
+        "trauma_cases": "stable",
+        "notes": "Vysoké riziko zahlcení urgentního příjmu respiračními případy"
+      },
+      "weather": {
+        "temperature": 32,
+        "conditions": "heat_wave",
+        "alert": "Varování před vedry - zvýšené riziko kardiovaskulárních případů u seniorů"
+      },
+      "local_events": [
+        {
+          "event": "Hudební festival Plzeň",
+          "date": "2026-06-21 - 2026-06-23",
+          "expected_cases": "Zvýšené riziko úrazů, dehydratace, intoxikací"
+        }
+      ]
+    },
+    {
+      "date": "2026-06-21",
+      "region": "Plzeň",
+      "conditions": {
+        "influenza": {
+          "status": "epidemic",
+          "incidence_per_100k": 420,
+          "trend": "increasing",
+          "severity": "high"
+        },
+        "covid19": {
+          "status": "endemic",
+          "incidence_per_100k": 38,
+          "trend": "stable",
+          "severity": "low"
+        }
+      },
+      "weather": {
+        "temperature": 30,
+        "conditions": "hot",
+        "alert": null
+      }
+    },
+    {
+      "date": "2026-06-20",
+      "region": "Plzeň",
+      "conditions": {
+        "influenza": {
+          "status": "epidemic",
+          "incidence_per_100k": 390,
+          "trend": "increasing",
+          "severity": "high"
+        },
+        "covid19": {
+          "status": "endemic",
+          "incidence_per_100k": 40,
+          "trend": "stable",
+          "severity": "low"
+        }
+      },
+      "weather": {
+        "temperature": 28,
+        "conditions": "warm"
+      }
+    }
+  ],
+  "hospital_capacity": {
+    "date": "2026-06-22",
+    "total_beds": 450,
+    "available_beds": 78,
+    "icu_beds": 32,
+    "available_icu_beds": 4,
+    "emergency_department_capacity": "85%",
+    "status": "near_capacity",
+    "waiting_time_avg": "45 minutes"
+  },
+  "specialist_availability": {
+    "cardiology": {
+      "available": true,
+      "on_call": "Dr. Novák",
+      "response_time": "15 min"
+    },
+    "neurology": {
+      "available": true,
+      "on_call": "Dr. Svobodová",
+      "response_time": "10 min"
+    },
+    "surgery": {
+      "available": true,
+      "on_call": "Dr. Černý",
+      "response_time": "immediate"
+    },
+    "orthopedics": {
+      "available": true,
+      "on_call": "Dr. Malý",
+      "response_time": "20 min"
+    },
+    "pulmonology": {
+      "available": false,
+      "on_call": "Dr. Horáková (external)",
+      "response_time": "45 min"
+    }
+  }
+}

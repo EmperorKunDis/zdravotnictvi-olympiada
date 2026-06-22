@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: triazni-agent-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ENVIRONMENT=production
+    volumes:
+      - ./data:/app/data
+      - ./backend:/app/backend
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - triazni-network
+
+  # Frontend (pokud bude implementován)
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: triazni-agent-frontend
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - REACT_APP_API_URL=http://localhost:8000
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - triazni-network
+
+networks:
+  triazni-network:
+    driver: bridge

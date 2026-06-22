@@ -1,0 +1,4 @@
+# Závislosti pro Vercel serverless (lehké demo, rule-based režim).
+# anthropic ZÁMĚRNĚ není potřeba — Claude se importuje lazy a bez klíče se
+# automaticky přepne na deterministická klinická pravidla (fallback).
+fastapi==0.128.8

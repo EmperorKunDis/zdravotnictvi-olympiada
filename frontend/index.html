@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Triážní AI Agent — Urgentní příjem</title>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --line:#334155;
+    --txt:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8;
+    --p1:#ef4444; --p2:#f97316; --p3:#eab308; --p4:#22c55e; --p5:#3b82f6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:var(--bg);color:var(--txt);line-height:1.5}
+  header{display:flex;align-items:center;justify-content:space-between;
+    padding:16px 28px;background:linear-gradient(90deg,#0b3a5c,#0f172a);
+    border-bottom:2px solid var(--accent)}
+  header h1{font-size:20px;margin:0;font-weight:600}
+  header h1 span{color:var(--accent)}
+  .badge{font-size:12px;padding:5px 12px;border-radius:999px;font-weight:600}
+  .badge.claude{background:#16a34a33;color:#4ade80;border:1px solid #16a34a}
+  .badge.rule{background:#ca8a0433;color:#fbbf24;border:1px solid #ca8a04}
+  .tabs{display:flex;gap:4px;padding:14px 28px 0;background:var(--bg)}
+  .tab{padding:10px 20px;cursor:pointer;border:none;background:var(--panel);
+    color:var(--muted);font-size:14px;font-weight:600;border-radius:8px 8px 0 0}
+  .tab.active{background:var(--panel2);color:var(--txt);border-bottom:2px solid var(--accent)}
+  main{padding:20px 28px 60px}
+  .layout{display:grid;grid-template-columns:300px 1fr;gap:20px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .plist{max-height:78vh;overflow:auto}
+  .pitem{padding:11px 13px;border-radius:9px;cursor:pointer;margin-bottom:7px;
+    border:1px solid transparent;background:var(--panel2);transition:.15s}
+  .pitem:hover{border-color:var(--accent)}
+  .pitem.active{border-color:var(--accent);background:#0b3a5c}
+  .pitem .nm{font-weight:600;font-size:14px}
+  .pitem .sub{font-size:12px;color:var(--muted)}
+  .pdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px}
+  .placeholder{color:var(--muted);text-align:center;padding:80px 20px;font-size:15px}
+  h2{font-size:17px;margin:0 0 6px}
+  h3{font-size:14px;margin:0 0 10px;color:var(--accent);text-transform:uppercase;letter-spacing:.5px}
+  .vitals{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+  .vital{background:var(--panel2);border-radius:8px;padding:8px 12px;font-size:13px;min-width:90px}
+  .vital b{display:block;font-size:16px}
+  .vital.warn b{color:var(--p2)}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+  .sys{border-radius:12px;padding:18px;border:1px solid var(--line)}
+  .sys.baseline{background:#1c1917}
+  .sys.agent{background:#0c1e2e;border-color:#0e7490}
+  .sys-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .sys-h .t{font-weight:700;font-size:15px}
+  .prio{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:9px;
+    font-weight:700;font-size:14px;color:#0b1220}
+  .reason{font-size:13px;color:var(--muted);margin:4px 0}
+  .steps{font-size:13px;margin:10px 0 0;padding-left:0;list-style:none}
+  .steps li{margin-bottom:7px;padding-left:14px;border-left:2px solid var(--line)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .chip{font-size:12px;background:var(--panel2);padding:3px 9px;border-radius:6px;color:var(--txt)}
+  .verdict{margin-top:12px;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:600}
+  .v-correct{background:#16a34a22;color:#4ade80;border:1px solid #16a34a}
+  .v-undertriage{background:#ef444422;color:#fca5a5;border:1px solid #ef4444}
+  .v-overtriage{background:#f9731622;color:#fdba74;border:1px solid #f97316}
+  .v-acceptable{background:#3b82f622;color:#93c5fd;border:1px solid #3b82f6}
+  .truth{margin-top:18px;padding:14px;border-radius:10px;background:var(--panel2);
+    border:1px dashed var(--accent);font-size:14px}
+  .truth b{color:var(--accent)}
+  .metrics{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+  .mcard{padding:18px;border-radius:12px;border:1px solid var(--line)}
+  .mcard.baseline{background:#1c1917}
+  .mcard.agent{background:#0c1e2e;border-color:#0e7490}
+  .mrow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .mrow:last-child{border:none}
+  .mrow .big{font-size:18px;font-weight:700}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:.5px}
+  .tag{padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600}
+  .loading{color:var(--muted);padding:40px;text-align:center}
+  .hidden{display:none}
+  button.run{margin-top:6px;background:var(--accent);color:#0b1220;border:none;
+    padding:9px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏥 Triážní <span>AI Agent</span> — Urgentní příjem</h1>
+  <div>
+    <span class="badge" id="aiBadge">…</span>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="triage">Triáž pacientů</button>
+  <button class="tab" data-tab="eval">Evaluace · Baseline vs. Agent</button>
+</div>
+
+<main>
+  <!-- TRIÁŽ -->
+  <section id="tab-triage" class="layout">
+    <div class="card plist">
+      <h3>Fronta pacientů</h3>
+      <div id="patientList"></div>
+    </div>
+    <div class="card" id="detail">
+      <div class="placeholder">← Vyberte pacienta z fronty pro spuštění triáže<br/>
+        <small>Porovnáme jednoduchý baseline systém s inteligentním AI agentem.</small>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVALUACE -->
+  <section id="tab-eval" class="hidden">
+    <div class="card">
+      <h2>Souhrnné srovnání na všech pacientech</h2>
+      <p class="reason">Cíl: minimalizovat <b>undertriage</b> (podhodnocení vážného pacienta — život ohrožující)
+        a zároveň snížit <b>overtriage</b> (planý poplach zahlcující systém).</p>
+      <button class="run" onclick="loadEval()">▶ Spustit evaluaci</button>
+      <div id="evalBox"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const PRIO = {
+  1:{n:"Resuscitace",c:"var(--p1)"},2:{n:"Emergentní",c:"var(--p2)"},
+  3:{n:"Urgentní",c:"var(--p3)"},4:{n:"Méně urgentní",c:"var(--p4)"},
+  5:{n:"Necitlivé",c:"var(--p5)"}
+};
+const VERDICT = {
+  correct:["✓ Správná triáž","v-correct"],
+  acceptable:["≈ Přijatelná triáž","v-acceptable"],
+  undertriage:["✗ UNDERTRIAGE — podhodnoceno!","v-undertriage"],
+  overtriage:["⚠ OVERTRIAGE — planý poplach","v-overtriage"]
+};
+
+async function api(p){const r=await fetch(p);if(!r.ok)throw new Error(await r.text());return r.json();}
+async function apiPost(p,b){const r=await fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});return r.json();}
+
+// tabs
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  const tab=t.dataset.tab;
+  document.getElementById('tab-triage').classList.toggle('hidden',tab!=='triage');
+  document.getElementById('tab-eval').classList.toggle('hidden',tab!=='eval');
+});
+
+let activeId=null;
+async function init(){
+  try{
+    const st=await api('/api/status');
+    const b=document.getElementById('aiBadge');
+    if(st.ai_mode==='claude'){b.className='badge claude';b.textContent='● AI: reálné Claude reasoning';}
+    else{b.className='badge rule';b.textContent='● AI: klinická pravidla (offline režim)';}
+  }catch(e){}
+  const data=await api('/api/patients');
+  const list=document.getElementById('patientList');
+  list.innerHTML='';
+  data.patients.forEach(p=>{
+    const el=document.createElement('div');
+    el.className='pitem';el.dataset.id=p.id;
+    el.innerHTML=`<div class="nm">${p.name}</div>
+      <div class="sub">${p.age} let · ${p.gender} · ${p.presentation.chief_complaint}</div>`;
+    el.onclick=()=>selectPatient(p.id,el);
+    list.appendChild(el);
+  });
+}
+
+async function selectPatient(id,el){
+  activeId=id;
+  document.querySelectorAll('.pitem').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  const d=document.getElementById('detail');
+  d.innerHTML='<div class="loading">⏳ Spouštím triáž — baseline i AI agent…</div>';
+  try{
+    const r=await api('/api/compare/'+id);
+    renderCompare(d,r);
+  }catch(e){d.innerHTML='<div class="placeholder">Chyba: '+e.message+'</div>';}
+}
+
+function prioBadge(p){
+  const info=PRIO[p]||{n:"?",c:"#888"};
+  return `<span class="prio" style="background:${info.c}">P${p} · ${info.n}</span>`;
+}
+function vital(label,val,warn){return `<div class="vital ${warn?'warn':''}"><span>${label}</span><b>${val}</b></div>`;}
+
+function renderCompare(d,r){
+  const p=r.patient, v=p.presentation.vital_signs;
+  const sp=v.oxygen_saturation;
+  const sysCol=(s)=>s.source==='claude'?'Claude AI':'klinická pravidla';
+  const stepsHtml=(arr)=>arr&&arr.length?`<ul class="steps">${arr.map(s=>`<li>${s}</li>`).join('')}</ul>`:'';
+  const chips=(arr)=>arr&&arr.length?`<div class="chips">${arr.map(c=>`<span class="chip">${c}</span>`).join('')}</div>`:'';
+  const verdict=(vd)=>{const x=VERDICT[vd]||["—","v-acceptable"];return `<div class="verdict ${x[1]}">${x[0]}</div>`;};
+
+  d.innerHTML=`
+    <h2>${p.name} <span style="color:var(--muted);font-weight:400">· ${p.age} let · ${p.gender}</span></h2>
+    <div class="reason">Hlavní stížnost: <b>${p.presentation.chief_complaint}</b> · bolest ${p.presentation.pain_scale}/10</div>
+    <div class="vitals">
+      ${vital('TK',v.blood_pressure)}
+      ${vital('Puls',v.heart_rate+'/min',v.heart_rate>120||v.heart_rate<50)}
+      ${vital('Dech',v.respiratory_rate+'/min',v.respiratory_rate>25)}
+      ${vital('Teplota',v.temperature+'°C',v.temperature>=39)}
+      ${vital('SpO₂',sp+'%',sp<94)}
+    </div>
+    <div class="reason" style="margin-top:10px">Anamnéza (EHR): ${(p.medical_history.conditions||[]).join(', ')||'žádná'}
+      · Rizika: ${(p.medical_history.risk_factors||[]).join(', ')||'žádná'}</div>
+
+    <div class="cols">
+      <div class="sys baseline">
+        <div class="sys-h"><span class="t">⚙️ Baseline systém</span>${prioBadge(r.baseline.priority)}</div>
+        <div class="reason">Rozhoduje jen z příznaků a vitálních funkcí — <b>nečte anamnézu</b>.</div>
+        <div class="reason">${r.baseline.reasoning||''}</div>
+        ${verdict(r.baseline.verdict)}
+      </div>
+      <div class="sys agent">
+        <div class="sys-h"><span class="t">🤖 AI Agent <span style="font-size:11px;color:var(--muted)">(${sysCol(r.agent)})</span></span>${prioBadge(r.agent.priority)}</div>
+        <div class="reason">Aktivně dohledává EHR + epidemiologii, hledá atypické prezentace.</div>
+        ${stepsHtml(r.agent.reasoning_steps)}
+        ${r.agent.differential_diagnosis?`<h3 style="margin-top:12px">Diferenciální dg.</h3>${chips(r.agent.differential_diagnosis)}`:''}
+        ${r.agent.recommended_actions?`<h3 style="margin-top:12px">Doporučené kroky</h3>${chips(r.agent.recommended_actions)}`:''}
+        ${verdict(r.agent.verdict)}
+      </div>
+    </div>
+
+    <div class="truth">
+      🩺 <b>Skutečná diagnóza:</b> ${p.true_diagnosis} &nbsp;·&nbsp;
+      <b>Správná priorita:</b> ${prioBadge(p.true_priority)}
+      ${p.notes?`<div class="reason" style="margin-top:6px">${p.notes}</div>`:''}
+    </div>`;
+}
+
+async function loadEval(){
+  const box=document.getElementById('evalBox');
+  box.innerHTML='<div class="loading">⏳ Vyhodnocuji oba systémy na všech pacientech…</div>';
+  try{
+    const r=await api('/api/evaluate');
+    renderEval(box,r);
+  }catch(e){box.innerHTML='<div class="placeholder">Chyba: '+e.message+'</div>';}
+}
+
+function metricCard(title,cls,m){
+  return `<div class="mcard ${cls}">
+    <h2>${title}</h2>
+    <div class="mrow"><span>🔴 Undertriage (podhodnocení)</span><span class="big" style="color:var(--p1)">${m.undertriage} <small>(${m.undertriage_rate}%)</small></span></div>
+    <div class="mrow"><span>🟠 Overtriage (planý poplach)</span><span class="big" style="color:var(--p2)">${m.overtriage} <small>(${m.overtriage_rate}%)</small></span></div>
+    <div class="mrow"><span>✓ Přesnost</span><span class="big" style="color:var(--p4)">${m.accuracy}%</span></div>
+  </div>`;
+}
+
+function renderEval(box,r){
+  const tag=(v)=>{const x=VERDICT[v]||["—","v-acceptable"];
+    const col={correct:'#16a34a',acceptable:'#3b82f6',undertriage:'#ef4444',overtriage:'#f97316'}[v]||'#888';
+    return `<span class="tag" style="background:${col}33;color:${col}">${x[0]}</span>`;};
+  let rows='';
+  r.agent.rows.forEach((a,i)=>{
+    const b=r.baseline.rows[i];
+    rows+=`<tr>
+      <td>${a.name}</td>
+      <td>${a.true_diagnosis}</td>
+      <td>P${a.true_priority}</td>
+      <td>P${b.predicted} ${tag(b.verdict)}</td>
+      <td>P${a.predicted} ${tag(a.verdict)}</td>
+    </tr>`;
+  });
+  box.innerHTML=`
+    <div class="metrics" style="margin-top:18px">
+      ${metricCard('⚙️ Baseline','baseline',r.baseline)}
+      ${metricCard('🤖 AI Agent','agent',r.agent)}
+    </div>
+    <table>
+      <thead><tr><th>Pacient</th><th>Skutečná dg.</th><th>Správně</th><th>Baseline</th><th>AI Agent</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+init();
+</script>
+</body>
+</html>
